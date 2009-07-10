@@ -1,4 +1,4 @@
-require 'spec/car'
+require 'car'
 
 #used to test that method_missing chaining plays nice in inheritance situation
 

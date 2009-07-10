@@ -30,7 +30,7 @@ namespace :spec do
   desc "Run all specs"
   Spec::Rake::SpecTask.new(:test) do |t|
     t.spec_files = FileList['spec/**/*_spec.rb']
-    t.libs << 'lib'
+    t.libs << 'lib' << 'spec'
     #t.spec_opts = ['--options', 'spec/spec.opts']
     t.rcov = false
     #t.rcov_dir = 'coverage'
@@ -41,7 +41,7 @@ end
 desc "Run test"
 Spec::Rake::SpecTask.new(:test) do |t|
   t.spec_files = FileList['spec/**/*_spec.rb']
-  t.libs << 'lib'
+  t.libs << 'lib' << 'spec'
   #t.spec_opts = ['--options', 'spec/spec.opts']
   t.rcov = false
   #t.rcov_dir = 'coverage'
