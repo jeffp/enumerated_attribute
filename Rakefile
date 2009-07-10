@@ -28,8 +28,9 @@ require 'spec/rake/spectask'
 
 namespace :spec do
   desc "Run all specs"
-  Spec::Rake::SpecTask.new('test') do |t|
+  Spec::Rake::SpecTask.new(:test) do |t|
     t.spec_files = FileList['spec/**/*_spec.rb']
+    t.libs << 'lib'
     #t.spec_opts = ['--options', 'spec/spec.opts']
     t.rcov = false
     #t.rcov_dir = 'coverage'
@@ -37,6 +38,15 @@ namespace :spec do
   end
 end
 
+desc "Run test"
+Spec::Rake::SpecTask.new(:test) do |t|
+  t.spec_files = FileList['spec/**/*_spec.rb']
+  t.libs << 'lib'
+  #t.spec_opts = ['--options', 'spec/spec.opts']
+  t.rcov = false
+  #t.rcov_dir = 'coverage'
+  #t.rcov_opts = ['--exclude', "kernel,load-diff-lcs\.rb,instance_exec\.rb,lib/spec.rb,lib/spec/runner.rb,^spec/*,bin/spec,examples,/gems,/Library/Ruby,\.autotest,#{ENV['GEM_HOME']}"]
+end
 
 =begin
 desc "Test the #{spec.name} plugin."

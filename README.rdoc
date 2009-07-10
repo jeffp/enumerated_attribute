@@ -82,7 +82,7 @@ demonstrated below using the Tractor class defined above:
   t.gear_previous                   # => :reverse
   t.gear_previous                   # => :over_drive
   
-The plugin has defined +gear+ and +gear=+ accessors for the attribute.  They can be used 
+The plugin has defined +gear+ and gear= accessors for the attribute.  They can be used 
 to set the attribute to one of the defined enumeration values.  Attempting to set the 
 attribute to something besides a defined enumeration value raises an ArgumentError.
 
@@ -99,7 +99,7 @@ of the enumeration array.  For example:
 ==== Using Attribute Predicates
 
 Attribute predicates are methods used to query the state of the attribute, 
-for instance, +gear_is_neutral?+ is a predicate method for the gear attribute.  
+for instance, gear_is_neutral? is a predicate method for the gear attribute.  
 The plugin will evaluate and respond to predicate methods
 for any attribute defined with it.  Predicate methods are not pre-generated.  By
 adhering to a specific format, the plugin can recognize attribute predicates
