@@ -1,0 +1,9 @@
+enumerated_attribute.gemspec
+lib/enumerated_attribute.rb
+Manifest
+Rakefile
+README.rdoc
+spec/car.rb
+spec/car_spec.rb
+spec/tractor.rb
+spec/tractor_spec.rb

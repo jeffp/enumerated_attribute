@@ -1,0 +1,11 @@
+== master
+
+== 0.0.1 / 2009-07-09
+
+* Added dynamic predicate method generation
+* Added options handling
+* Added incrementor and decrementor
+* Added enumeration accessor
+* Added accessor and enumeration value definition
+* Added simple attribute initialization
+* Added DSL for short-hand method definition

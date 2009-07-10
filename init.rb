@@ -1,0 +1,1 @@
+require 'enumerated_attribute'
