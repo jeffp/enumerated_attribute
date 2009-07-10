@@ -1,7 +1,35 @@
 require 'tractor'
 
 describe "Tractor" do
+  it "should have getter but no setter for :temperature" do
+    Tractor.instance_methods.should_not include('temperature=')
+    Tractor.instance_methods.should include('temperature')
+  end
+  
+  it "should have setter but no getter for :ignition" do
+    Tractor.instance_methods.should_not include('ignition')
+    Tractor.instance_methods.should include('ignition=')
+  end
 
+  it "should be able to set :plow to nil" do
+    t=Tractor.new
+    lambda { t.plow = nil }.should_not raise_error(ArgumentError)
+  end
+  
+  it "should have method :plow_nil? that operates correctly" do
+    t=Tractor.new
+    t.plow.should_not be_nil
+    t.plow_nil?.should be_false
+    t.plow = nil
+    t.plow.should be_nil
+    t.plow_nil?.should be_true
+  end
+  
+  it "should raise ArgumentError when setting :gear to nil" do
+    t=Tractor.new
+    lambda{ t.gear = nil }.should raise_error(ArgumentError)
+  end
+  
   it "should have respond_to? method for :gear_is_in_neutral?" do
     t=Tractor.new
     t.respond_to?('gear_is_in_neutral?').should be_true

@@ -19,7 +19,7 @@ class Tractor
     downshift { self.driving? ? self.gear_previous : self.gear }
   end
   
-  enum_attr :plow, %w(^up down) do
+  enum_attr :plow, %w(^up down), :nil=>true do
     plowing? { self.gear_is_in_first? && self.plow == :down }
   end
   
@@ -34,5 +34,8 @@ class Tractor
     incrementor :side_light_up
     decrementor :side_light_down    
   end
+  
+  enum_attr_reader :temperature, %w(low med high)
+  enum_attr_writer :ignition, %w(^off activate)
     
 end

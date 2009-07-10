@@ -5,7 +5,7 @@ require 'rake/contrib/sshpublisher'
  
 spec = Gem::Specification.new do |s|
   s.name = 'enumerated_attribute'
-  s.version = '0.1.0'
+  s.version = '0.1.1'
   s.platform = Gem::Platform::RUBY
   s.description = 'A enumerated attribute accessor'
   s.summary = 'Defines enumerated attributes, initial state and dynamic state methods.'

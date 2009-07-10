@@ -1,6 +1,12 @@
 == master
 
-== 0.1.0 / 2009-07-09
+== 0.1.1 / 2009-07-09
+
+* Added enum_attr_reader and enum_attr_writer
+* Added option :nil=>true to allow attributes set to nil
+* Added #{attr_name}_nil? method for testing nil case
+
+== 0.1.0 / 2009-07-08
 
 * Added dynamic predicate method generation
 * Added options handling

@@ -1,10 +1,25 @@
 module EnumeratedAttribute
 
 #todo: system wide constants
-#todo: allow nil
 #todo: setter_callback
 #todo: ArgumentError may need to use Errors for ActiveRecord
+#todo: test new chaining plays nice
 
+  def enum_attr_reader(*args, &block)
+    if args.length > 1
+      args << {} if args.length == 2
+      args[2][:writer] = false if args[2].kind_of?(Hash)
+    end
+    enumerated_attribute(*args, &block)
+  end
+  def enum_attr_writer(*args, &block)
+    if args.length > 1
+      args << {} if args.length == 2
+      args[2][:reader] = false if args[2].kind_of?(Hash)
+    end
+    enumerated_attribute(*args, &block)
+  end
+  
   def enumerated_attribute(*args, &block)
     return if args.empty?
     attr_name = args[0].to_s
@@ -35,13 +50,15 @@ module EnumeratedAttribute
     end
 
     #create accessors
-    attr_reader attr_sym
-    if enums.empty?
-      attr_writer attr_sym
-    else
-      enumerated_attr_writer attr_sym
+    attr_reader attr_sym unless (opts.key?(:reader) && !opts[:reader])
+    unless (opts.key?(:writer) && !opts[:writer])
+      if enums.empty?
+        attr_writer attr_sym 
+      else
+        enumerated_attr_writer(attr_sym, opts[:nil] || false)
+      end
     end
-
+    
     #define dynamic methods in method_missing
     class_eval <<-METHOD
       unless @missing_method_for_enumerated_attribute_defined
@@ -133,6 +150,9 @@ module EnumeratedAttribute
           index = z.index(@#{attr_name})
           @#{attr_name} = z[index > 0 ? index-1 : z.size-1]
         end
+        def #{attr_name}_nil?
+          @#{attr_name} == nil
+        end
       ENUM
     end
     
@@ -171,12 +191,16 @@ module EnumeratedAttribute
 
   private
   
-  def enumerated_attr_writer name
+  def enumerated_attr_writer name, allow_nil=false
     name = name.to_s
     class_eval <<-METHOD
-      def #{name}=(val)
+      def #{name}=(val)        
         val = val.to_sym if val.instance_of?(String)
-        raise(ArgumentError, "'" + val.to_s + "' is not an enumerated value for #{name} attribute", caller) unless @@enumerated_attribute_values[:#{name}].include?(val) 
+        unless (val == nil && #{allow_nil})
+          raise(ArgumentError, 
+            (val == nil ? "nil is not allowed on #{name} attribute, set :nil=>true option" : "'" + val.to_s + "' is not an enumeration value for #{name} attribute"), 
+            caller) unless @@enumerated_attribute_values[:#{name}].include?(val) 
+        end
         @#{name} = val
       end
     METHOD
