@@ -1,9 +1,12 @@
 module EnumeratedAttribute
 
+#todo: is_not/is
+#todo: dynamic_enums
 #todo: system wide constants
 #todo: setter_callback
 #todo: ArgumentError may need to use Errors for ActiveRecord
 #todo: test new chaining plays nice
+#todo: attribute methods gear.enums, gear.inc, gear.dec
 
   def enum_attr_reader(*args, &block)
     if args.length > 1

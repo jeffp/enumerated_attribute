@@ -1,6 +1,7 @@
 require 'tractor'
 
 describe "Tractor" do
+  
   it "should have getter but no setter for :temperature" do
     Tractor.instance_methods.should_not include('temperature=')
     Tractor.instance_methods.should include('temperature')

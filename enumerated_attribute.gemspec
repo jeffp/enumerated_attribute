@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jeff Patmon"]
-  s.date = %q{2009-07-09}
+  s.date = %q{2009-07-10}
   s.description = %q{A enumerated attribute accessor}
   s.email = %q{jpatmon@yahoo.com}
   s.files = ["lib/enumerated_attribute.rb", "spec/car.rb", "spec/car_spec.rb", "spec/tractor.rb", "spec/tractor_spec.rb", "CHANGELOG.rdoc", "init.rb", "LICENSE", "Rakefile", "README.rdoc", ".gitignore"]
