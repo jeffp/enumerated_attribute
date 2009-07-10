@@ -1,4 +1,4 @@
-== enumerated_attribute
+= enumerated_attribute
 
 +enumerated_attribute+ simplifies the definition of enumeration-based attributes, their accessors, initializers and common predicate and support methods.
 

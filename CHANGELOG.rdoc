@@ -1,6 +1,6 @@
 == master
 
-== 0.0.1 / 2009-07-09
+== 0.1.0 / 2009-07-09
 
 * Added dynamic predicate method generation
 * Added options handling
