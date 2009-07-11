@@ -15,7 +15,7 @@ class Tractor
   enumerated_attribute :gear, %w(reverse ^neutral first second over_drive) do
     parked? is :neutral 
     driving? is [:first, :second, :over_drive]
-    not_parked? isnt :neutral
+    not_parked? is_not :neutral
     not_driving? is_not [:first, :second, :over_drive]
     upshift { self.gear_is_in_over_drive? ? self.gear : self.gear_next }
     downshift { self.driving? ? self.gear_previous : self.gear }
