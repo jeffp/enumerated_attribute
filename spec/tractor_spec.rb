@@ -2,6 +2,18 @@ require 'tractor'
 
 describe "Tractor" do
   
+  it "should negate result for not_parked? defined with is_not" do
+    t=Tractor.new
+    t.gear = :neutral
+    t.not_parked?.should be_false
+  end
+  
+  it "should negate result for not_driving? defined with is_not" do
+    t=Tractor.new
+    t.gear = :neutral
+    t.not_driving?.should be_true
+  end
+  
   it "should have getter but no setter for :temperature" do
     Tractor.instance_methods.should_not include('temperature=')
     Tractor.instance_methods.should include('temperature')
