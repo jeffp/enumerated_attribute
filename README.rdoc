@@ -52,7 +52,7 @@ Here's a quick example of what +enumerated_attribute+ can do:
   t.upshift                         # => :first
   t.driving?                        # => true
   t.gear = :second                  # => :second
-  t.gear_is_in_first?               # => false
+  t.gear_is_not_in_first?           # => true
 
 An explanation of the above features and their usage follows.
 
