@@ -63,18 +63,18 @@ form of +enumerated_attribute+ looks like this:
   
 Defining the attribute :gear has done a number things.  
 It has generated an instance variable '@gear', read/write accessors for the 
-attribute and three support methods
+attribute and support methods
 for the enumeration, including an incrementor and decrementor.  These methods are 
 demonstrated below using the Tractor class defined above:
 
   Tractor.instance_methods(false)
-  # =>["gear", "gear=", "gears", "gear_next", "gear_previous", ...
+  # =>["gear", "gear=", "gears", "gear_next", "gear_previous", "gear_nil?" ...
 
   t = Tractor.new
   t.gear                            # => :neutral
-  t.gear= :reverse                  # => :reverse
+  t.gear = :reverse                  # => :reverse
   t.gear                            # => :reverse
-  t.gear= :third
+  t.gear = :third
   # => ArgumentError: 'third' is not an enumerated value for gear attribute
   
   t.gears                           # => [:reverse, :neutral, :first, :second, :over_drive]
@@ -144,7 +144,7 @@ the +initialize+ method.  Two ways are demonstrated here:
     enum_attr :front_light, %w(off low high), :init=>:off
   end
   
-  t=Tractor.new
+  t = Tractor.new
   t.gear                            # => :neutral
   t.front_light                     # => :off
 
@@ -157,6 +157,24 @@ The plugin recognizes that the gear attribute is to be initialized to :neutral.
 Alternatively, the :init option can be used to indicate the initial value of the attribute.
 
 
+==== Setting Attributes to nil
+
+By default, the attribute setter does not allow nils unless the :nil option is set to true
+in the definition as demonstrated here:
+
+  class Tractor 
+    enum_attr :plow %w(^up down), :nil=>true
+  end
+  
+  t = Tractor.new
+  t.plow                            # => :up
+  t.plow_nil?                       # => :false
+  t.plow = nil                      # => nil
+  t.plow_nil?                       # => true
+  
+Regardless of the :nil option setting, a {attribute_name}_nil? method is defined for each attribute.
+
+
 ==== Changing Method Names
 
 The plugin provides options for changing the method names of the enumeration accessor, incrementor
@@ -167,7 +185,7 @@ and decrementor (ie, +gears+, +gear_next+, +gear_previous+):
         :inc=>'lights_inc', :dec=>'lights_dec'
   end
   
-  t=Tractor.new
+  t = Tractor.new
   t.lights_values                   # => [:off, :low, :high]
   t.lights_inc                      # => :low
   t.lights_dec                      # => :off
@@ -187,13 +205,13 @@ the plugin provides a short-hand for defining these methods in the
 +enumerated_attribute+ block.
 
   class Tractor
-    enum_attr :gear, %(reverse ^neutral first second over_drive) do
+    enum_attr :gear, %w(reverse ^neutral first second over_drive) do
       parked? :neutral
       driving? [:first, :second, :third]
     end
   end
 
-  t=Tractor.new
+  t = Tractor.new
   t.parked?                         # => true
   t.driving?                        # => false
   
@@ -203,16 +221,29 @@ The first method, parked?, defines a method which evaluates
 the code {@gear == :neutral}.  The second method, driving?, evaluates
 to true if the attribute is set to one of the enumeration values defined in the array 
 [:first, :second, :third].
-  
+
+The same short-hand can be used to define methods where the attribute 'is not' equal to the
+indicated value or 'is not' included in the array of values.
+
+  class Tractor
+    enum_attr :gear, %w(reverse ^neutral first second over_drive) do
+      not_parked? is_not :neutral
+      not_driving? is_not [:first, :second, :third]
+    end
+  end
+
+
+==== Defining Other Methods With Blocks
+
 For predicate methods requiring fancier logic,
 a block can be used to define the method body.
 
   class Tractor
-    enum_attr :gear, %(reverse ^neutral first second over_drive) do
+    enum_attr :gear, %w(reverse ^neutral first second over_drive) do
       parked? :neutral
       driving? [:first, :second, :third]
     end
-    enum_attr :plow, %(^up down), :plural=>:plow_values do
+    enum_attr :plow, %w(^up down), :plural=>:plow_values do
       plowing? { self.gear_is_in_first? && @plow == :down }
     end
   end
@@ -227,7 +258,7 @@ can be defined to manipulate the attributes.  Here, two methods are defined acti
 as bounded incrementor and decrementor of the gear attribute.
 
   class Tractor
-    enum_attr :gear, %(reverse ^neutral first second over_drive) do
+    enum_attr :gear, %w(reverse ^neutral first second over_drive) do
       parked? :neutral
       driving? [:first, :second, :third]
       upshift { self.gear_is_in_over_drive? ? self.gear : self.gear_next }

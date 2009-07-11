@@ -258,7 +258,6 @@ module EnumeratedAttribute
 
     def method_missing(methId, *args, &block)
       meth_name = methId.id2name
-      #puts "meth_name = #{meth_name}, args = #{args.inspect}, block = #{block_given?}"
       
       meth_def = nil
       if args.size > 0
