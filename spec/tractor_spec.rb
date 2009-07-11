@@ -2,6 +2,28 @@ require 'tractor'
 
 describe "Tractor" do
   
+  it "should dynamically create :plow_nil? and :plow_not_nil?" do
+    t=Tractor.new
+    t.plow_nil?.should be_false
+    t.plow_not_nil?.should be_true
+    t.plow = nil
+    t.plow_not_nil?.should be_false
+    t.plow_nil?.should be_true
+    Tractor.instance_methods(false).should include('plow_nil?')
+    Tractor.instance_methods(false).should include('plow_not_nil?')
+  end
+  
+  it "should dynamically create :plow_is_nil? and :plow_is_not_nil?" do
+    t=Tractor.new
+    t.plow_is_nil?.should be_false
+    t.plow_is_not_nil?.should be_true
+    t.plow = nil
+    t.plow_is_not_nil?.should be_false
+    t.plow_is_nil?.should be_true
+    Tractor.instance_methods(false).should include('plow_is_nil?')
+    Tractor.instance_methods(false).should include('plow_is_not_nil?')    
+  end
+  
   it "should negate result for not_parked? defined with is_not" do
     t=Tractor.new
     t.gear = :neutral

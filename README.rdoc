@@ -68,11 +68,11 @@ for the enumeration, including an incrementor and decrementor.  These methods ar
 demonstrated below using the Tractor class defined above:
 
   Tractor.instance_methods(false)
-  # =>["gear", "gear=", "gears", "gear_next", "gear_previous", "gear_nil?" ...
+  # =>["gear", "gear=", "gears", "gear_next", "gear_previous", ...
 
   t = Tractor.new
   t.gear                            # => :neutral
-  t.gear = :reverse                  # => :reverse
+  t.gear = :reverse                 # => :reverse
   t.gear                            # => :reverse
   t.gear = :third
   # => ArgumentError: 'third' is not an enumerated value for gear attribute
@@ -170,9 +170,11 @@ in the definition as demonstrated here:
   t.plow                            # => :up
   t.plow_nil?                       # => :false
   t.plow = nil                      # => nil
-  t.plow_nil?                       # => true
+  t.plow_is_nil?                    # => true
+  t.plow_is_not_nil?                # => false
   
-Regardless of the :nil option setting, a {attribute_name}_nil? method is defined for each attribute.
+Regardless of the :nil option setting, the plugin can dynamically recognize and define
+predicate methods for testing 'nil' values.
 
 
 ==== Changing Method Names
@@ -267,11 +269,11 @@ as bounded incrementor and decrementor of the gear attribute.
   end
   
   t = Tractor.new
-  t.gear                          # => :neutral
+  t.gear                            # => :neutral
   10.times { t.upshift }
-  t.gear                          # => :over_drive
+  t.gear                            # => :over_drive
   10.times { t.downshift }
-  t.gear                          # => :neutral
+  t.gear                            # => :neutral
   
 Methods +upshift+ and +downshift+ use the automatically generated 
 incrementor and decrementor as

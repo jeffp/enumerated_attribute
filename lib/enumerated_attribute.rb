@@ -89,11 +89,11 @@ module EnumeratedAttribute
         def parse_dynamic_method_parts(meth_name)
           return(nil) unless meth_name[-1, 1] == '?'
           
-          meth_name.chop! #remove the ?
+          middle = meth_name.chop #remove the ?
           
           attr = nil
           @@enumerated_attribute_names.each do |name|
-            if meth_name.sub!(Regexp.new("^"+name.to_s), "")
+            if middle.sub!(Regexp.new("^"+name.to_s), "")
               attr = name; break
             end
           end
@@ -103,23 +103,26 @@ module EnumeratedAttribute
           value = nil
           if @@enumerated_attribute_values.key?(attr_sym)
             @@enumerated_attribute_values[attr_sym].each do |v|
-              if meth_name.sub!(Regexp.new(v.to_s+"$"), "")
+              if middle.sub!(Regexp.new(v.to_s+"$"), "")
                 value = v; break
               end
             end
           end
-          return (nil) unless value
+          unless value #check for nil?
+            return (nil) unless middle.sub!(Regexp.new('nil$'), "")
+            value = nil
+          end
           
-          [attr, value, meth_name]
+          [attr, middle, value]
         end
       
         def define_enumerated_attribute_dynamic_method(methId)
           meth_name = methId.id2name
           return(false) unless (parts = parse_dynamic_method_parts(meth_name))
-          return(false) unless parts
           
-          negated = !!parts[2].downcase.match(/_not_/)
-          self.class.define_attribute_state_method(methId, parts[0], parts[1].to_sym, negated)
+          negated = !!parts[1].downcase.match(/_not_/)
+          value = parts[2] ? parts[2].to_sym : nil
+          self.class.define_enumerated_attribute_custom_method(methId, parts[0], value, negated)
           
           true
         end
@@ -153,9 +156,6 @@ module EnumeratedAttribute
           index = z.index(@#{attr_name})
           @#{attr_name} = z[index > 0 ? index-1 : z.size-1]
         end
-        def #{attr_name}_nil?
-          @#{attr_name} == nil
-        end
       ENUM
     end
     
@@ -185,7 +185,7 @@ module EnumeratedAttribute
   #a short cut
   alias :enum_attr :enumerated_attribute
   
-  def define_attribute_state_method(symbol, attr_name, value, negated)
+  def define_enumerated_attribute_custom_method(symbol, attr_name, value, negated)
     define_method symbol do
       ival = instance_variable_get('@'+attr_name)
       negated ? ival != value : ival == value

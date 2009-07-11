@@ -2,7 +2,8 @@
 
 == 0.1.2 / 2009-07-11
 
-* Added 'is_not' and 'is' for custom method definitions
+* Added 'is_not' for negated custom method definitions
+* Added dynamic creation of 'nil' predicate methods
 * Refactored MethodDefinitionDSL
 * Added EnumeratedAttribute::MethodDefinition 
 
