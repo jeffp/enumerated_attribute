@@ -1,0 +1,8 @@
+== Notes
+
+=== Sqlite3 In-memory testing
+
+* http://www.mathewabonyi.com/articles/2006/11/26/superfast-testing-how-to-in-memory-sqlite3/
+* use gem install sqlite3-ruby --source http://code.whytheluckystiff.net
+
+

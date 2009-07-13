@@ -2,4 +2,4 @@
 pkg
 rdoc
 coverage
-test/*.log
+/**/*.log

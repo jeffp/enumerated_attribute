@@ -13,7 +13,7 @@ spec = Gem::Specification.new do |s|
   s.files = FileList['{examples,lib,tasks,spec}/**/*'] + %w(CHANGELOG.rdoc init.rb LICENSE Rakefile README.rdoc .gitignore) - FileList['test/*.log']
   s.require_path = 'lib'
   s.has_rdoc = true
-  s.test_files = Dir['spec/**/*_spec.rb']
+  s.test_files = Dir['spec/*_spec.rb']
   
   s.author = 'Jeff Patmon'
   s.email = 'jpatmon@yahoo.com'
@@ -26,26 +26,23 @@ task :default => :test
 require 'spec/version'
 require 'spec/rake/spectask'
 
-namespace :spec do
-  desc "Run all specs"
-  Spec::Rake::SpecTask.new(:test) do |t|
-    t.spec_files = FileList['spec/**/*_spec.rb']
-    t.libs << 'lib' << 'spec'
-    #t.spec_opts = ['--options', 'spec/spec.opts']
-    t.rcov = false
-    #t.rcov_dir = 'coverage'
-    #t.rcov_opts = ['--exclude', "kernel,load-diff-lcs\.rb,instance_exec\.rb,lib/spec.rb,lib/spec/runner.rb,^spec/*,bin/spec,examples,/gems,/Library/Ruby,\.autotest,#{ENV['GEM_HOME']}"]
-  end
+desc "Run specs"
+Spec::Rake::SpecTask.new(:spec) do |t|
+	t.spec_files = FileList['spec/*_spec.rb']
+	t.libs << 'lib' << 'spec'
+	t.rcov = false
+	#t.spec_opts = ['--options', 'spec/spec.opts']
+	#t.rcov_dir = 'coverage'
+	#t.rcov_opts = ['--exclude', "kernel,load-diff-lcs\.rb,instance_exec\.rb,lib/spec.rb,lib/spec/runner.rb,^spec/*,bin/spec,examples,/gems,/Library/Ruby,\.autotest,#{ENV['GEM_HOME']}"]
 end
 
-desc "Run test"
-Spec::Rake::SpecTask.new(:test) do |t|
-  t.spec_files = FileList['spec/**/*_spec.rb']
-  t.libs << 'lib' << 'spec'
-  #t.spec_opts = ['--options', 'spec/spec.opts']
-  t.rcov = false
-  #t.rcov_dir = 'coverage'
-  #t.rcov_opts = ['--exclude', "kernel,load-diff-lcs\.rb,instance_exec\.rb,lib/spec.rb,lib/spec/runner.rb,^spec/*,bin/spec,examples,/gems,/Library/Ruby,\.autotest,#{ENV['GEM_HOME']}"]
+namespace :spec do
+  desc "Run ActiveRecord integration specs"
+	Spec::Rake::SpecTask.new(:active_record) do |t|
+		t.spec_files = FileList['spec/active_record/*_spec.rb']
+		t.libs << 'lib' << 'spec/active_record'
+		t.rcov = false
+	end
 end
 
 =begin

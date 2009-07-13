@@ -1,7 +1,13 @@
 require 'tractor'
 
 describe "Tractor" do
-  
+  it "should initialize :gear for two instances of the same class" do
+		t=Tractor.new
+		t.gear.should == :neutral
+		s=Tractor.new
+		s.gear.should == :neutral
+	end
+	
   it "should dynamically create :plow_nil? and :plow_not_nil?" do
     t=Tractor.new
     t.plow_nil?.should be_false

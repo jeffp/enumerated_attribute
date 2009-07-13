@@ -8,20 +8,24 @@ module EnumeratedAttribute
 #todo: test new chaining plays nice
 #todo: attribute methods gear.enums, gear.inc, gear.dec
 
-  def enum_attr_reader(*args, &block)
-    if args.length > 1
-      args << {} if args.length == 2
-      args[2][:writer] = false if args[2].kind_of?(Hash)
-    end
-    enumerated_attribute(*args, &block)
-  end
-  def enum_attr_writer(*args, &block)
-    if args.length > 1
-      args << {} if args.length == 2
-      args[2][:reader] = false if args[2].kind_of?(Hash)
-    end
-    enumerated_attribute(*args, &block)
-  end
+	class EnumeratedAttributeError < StandardError; end
+	class IntegrationError < EnumeratedAttributeError; end
+
+	#these should be removed for derivations of ActiveRecord and Datamapper (see Integrations::ActiveRecord)
+	def enum_attr_reader(*args, &block)
+		if args.length > 1
+			args << {} if args.length == 2
+			args[2][:writer] = false if args[2].kind_of?(Hash)
+		end
+		enumerated_attribute(*args, &block)
+	end
+	def enum_attr_writer(*args, &block)
+		if args.length > 1
+			args << {} if args.length == 2
+			args[2][:reader] = false if args[2].kind_of?(Hash)
+		end
+		enumerated_attribute(*args, &block)
+	end
   
   def enumerated_attribute(*args, &block)
     return if args.empty?
@@ -38,12 +42,20 @@ module EnumeratedAttribute
     plural_name = opts[:plural] || opts[:enums_accessor] || opts[:enums] || "#{attr_name}s"
     incrementor = opts[:incrementor] || opts[:inc] || "#{attr_name}_next"
     decrementor = opts[:decrementor] || opts[:dec] || "#{attr_name}_previous"
+
+		#define_enumerated_attribute_[writer, reader] may be modified in a named Integrations module (see Integrations::ActiveRecord)
+		class_eval <<-MAP
+			unless @integration_map
+				@integration_map = Integrations.find_integration_map(self) unless @integration_map
+				include(@integration_map[:module]) if @integration_map[:module]
+			end
+		MAP
     
     class_eval <<-ATTRIB
       @@enumerated_attribute_names ||= []
       @@enumerated_attribute_names << '#{attr_name}'
     ATTRIB
-    
+		
     unless enums.empty?
       enums = enums.map{|v| (v =~ /^\^/ ? (initial_value = v[1, v.length-1].to_sym) : v.to_sym )}
       class_eval <<-ENUMS
@@ -53,14 +65,13 @@ module EnumeratedAttribute
     end
 
     #create accessors
-    attr_reader attr_sym unless (opts.key?(:reader) && !opts[:reader])
-    unless (opts.key?(:writer) && !opts[:writer])
-      if enums.empty?
-        attr_writer attr_sym 
-      else
-        enumerated_attr_writer(attr_sym, opts[:nil] || false)
-      end
-    end
+		unless (opts.key?(:reader) && !opts[:reader])
+			define_enumerated_attribute_reader attr_sym 
+		end
+	
+		unless (opts.key?(:writer) && !opts[:writer])
+			define_enumerated_attribute_writer(attr_sym, opts[:nil])
+		end	
     
     #define dynamic methods in method_missing
     class_eval <<-METHOD
@@ -84,7 +95,7 @@ module EnumeratedAttribute
           respond_to_without_enumerated_attribute?(method) || !!parse_dynamic_method_parts(method.to_s)
         end
         
-        private
+        private				
         
         def parse_dynamic_method_parts(meth_name)
           return(nil) unless meth_name[-1, 1] == '?'
@@ -149,12 +160,12 @@ module EnumeratedAttribute
         def #{incrementor}
           z = @@enumerated_attribute_values[:#{attr_name}]
           index = z.index(@#{attr_name})
-          @#{attr_name} = z[index >= z.size-1 ? 0 : index+1]
+          self.#{attr_name} = z[index >= z.size-1 ? 0 : index+1]
         end
         def #{decrementor}
           z = @@enumerated_attribute_values[:#{attr_name}]
           index = z.index(@#{attr_name})
-          @#{attr_name} = z[index > 0 ? index-1 : z.size-1]
+          self.#{attr_name} = z[index > 0 ? index-1 : z.size-1]
         end
       ENUM
     end
@@ -193,22 +204,98 @@ module EnumeratedAttribute
   end
 
   private
-  
-  def enumerated_attr_writer name, allow_nil=false
+	  
+  def define_enumerated_attribute_writer name, allow_nil=false
     name = name.to_s
     class_eval <<-METHOD
-      def #{name}=(val)        
-        val = val.to_sym if val.instance_of?(String)
-        unless (val == nil && #{allow_nil})
+      def #{name}=(val)     
+				val = val ? val.to_s : nil
+        sval = val ? val.to_sym : nil 
+        unless (val == nil && #{!!allow_nil})
           raise(ArgumentError, 
-            (val == nil ? "nil is not allowed on #{name} attribute, set :nil=>true option" : "'" + val.to_s + "' is not an enumeration value for #{name} attribute"), 
-            caller) unless @@enumerated_attribute_values[:#{name}].include?(val) 
+            (val == nil ? "nil is not allowed on #{name} attribute, set :nil=>true option" : "'" + val + "' is not an enumeration value for #{name} attribute"), 
+            caller) unless @@enumerated_attribute_values[:#{name}].include?(sval) 
         end
-        @#{name} = val
+        #{@integration_map[:setter_method]}(:#{name}, val)
       end
     METHOD
   end
   
+	def define_enumerated_attribute_reader name
+		name = name.to_s
+		class_eval <<-METHOD
+			def #{name}
+				val = #{@integration_map[:getter_method]}(:#{name}) 
+				val = val.to_sym unless val == nil
+				val
+			end
+		METHOD
+	end
+	
+	module Integrations
+		module Object
+			def self.included(klass); klass.extend(ClassMethods); end
+			module ClassMethods
+				private
+				def define_enumerated_attribute_reader(name)
+					name = name.to_s
+					class_eval <<-METHOD
+						def #{name}; @#{name}; end
+					METHOD
+				end
+				def define_enumerated_attribute_writer name, allow_nil=false
+					name = name.to_s
+					class_eval <<-METHOD
+						def #{name}=(val)     
+							val = val ? val.to_s : nil
+							sval = val ? val.to_sym : nil 
+							unless (val == nil && #{!!allow_nil})
+								raise(ArgumentError, 
+									(val == nil ? "nil is not allowed on #{name} attribute, set :nil=>true option" : "'" + val + "' is not an enumeration value for #{name} attribute"), 
+									caller) unless @@enumerated_attribute_values[:#{name}].include?(sval) 
+							end
+							@#{name} = sval
+						end
+					METHOD
+				end
+			end
+		end
+		
+		module ActiveRecord
+			def self.included(klass)
+				klass.private_class_method(:enum_attr_reader)
+				klass.private_class_method(:enum_attr_writer)
+			end			
+		end
+	
+		module Datamapper
+		end
+	
+			@@integration_map = {}
+		
+		def self.add_integration_map(base_klass, module_name, setter_method, getter_method)
+			@@integration_map[base_klass] = {:module=>module_name, :setter_method=>setter_method.to_s, :getter_method=>getter_method.to_s}
+		end
+		class << self
+			alias_method(:add, :add_integration_map)
+		end
+			
+		#included mappings
+		add('Object', EnumeratedAttribute::Integrations::Object, :instance_variable_set, :instance_variable_get)
+		add('ActiveRecord::Base', EnumeratedAttribute::Integrations::ActiveRecord, :write_attribute, :read_attribute)
+		
+		def self.find_integration_map(klass)
+			path = "#{klass}"
+			begin
+				return @@integration_map[klass.to_s] if @@integration_map.key?(klass.to_s)
+				klass = klass.superclass
+				path << " < #{klass}"
+			end while klass
+			raise EnumeratedAttribute::IntegrationError, "Unable to find integration for class hierarchy '#{path}'", caller
+		end
+		
+	end
+	
   public
   
   class MethodDefinition
