@@ -29,10 +29,31 @@ describe "RaceCar" do
 		r.choke.should == :medium
 	end
 	
-	it "should convert enumerated attributes from string to symbols" do
+	it "should convert non-column enumerated attributes from string to symbols" do
+		r=RaceCar.new
+		r.choke = 'medium'
+		r.choke.should == :medium
+		r.save!		
+	end
+	
+	it "should convert enumerated column attributes from string to symbols" do
+		r=RaceCar.new
+		r.gear = 'second'
+		r.gear.should == :second
+		r.save!
+
+		s=RaceCar.find r.id
+		s.gear.should == :second
 	end
 	
 	it "should not convert non-enumerated column attributes from string to symbols" do
+		r=RaceCar.new
+		r.lights = 'off'
+		r.lights.should == 'off'
+		r.save!
+		
+		s=RaceCar.find r.id
+		s.lights.should == 'off'
 	end	
 
 	it "should raise InvalidEnumeration when parametrically initialized with :gear=>:drive" do
@@ -86,7 +107,48 @@ describe "RaceCar" do
 		r.lights.should == :on
 		r[:lights].should == :on
 	end
+
+	it "should raise InvalidEnumeration for invalid enum passed to attributes=" do
+		r=RaceCar.new
+		lambda { r.attributes = {:lights=>'off', :gear =>:drive} }.should raise_error(EnumeratedAttribute::InvalidEnumeration)
+	end
 	
+	it "should update_attribute for enumerated column attribute" do
+		r=RaceCar.new
+		r.gear = :first
+		r.save!
+		r.update_attribute(:gear, :second)
+		r.gear.should == :second
+		
+		s=RaceCar.find r.id
+		s.gear.should == :second
+	end
+	
+	it "should update_attribute for non-enumerated column attribute" do
+		r=RaceCar.new
+		r.lights = 'on'
+		r.save!
+		r.update_attribute(:lights, 'off')
+		r.lights.should == 'off'
+		
+		s=RaceCar.find r.id
+		s.lights.should == 'off'
+	end
+	
+	it "should update_attributes for both non- and enumerated column attributes" do
+		r=RaceCar.new
+		r.gear = :first
+		r.lights = 'off'
+		r.save!
+		r.update_attributes({:gear=>:second, :lights=>'on'})
+		s=RaceCar.find r.id
+		s.gear.should == :second
+		s.lights.should == 'on'
+		s.update_attributes({:gear=>'over_drive', :lights=>'off'})
+		t=RaceCar.find s.id
+		t.gear.should == :over_drive
+		t.lights.should == 'off'
+	end
 	
 	it "should provide symbol values for enumerated column attributes from the :attributes method" do
 	end
@@ -117,7 +179,13 @@ describe "RaceCar" do
 		s.gear.should == :over_drive
 	end
 	
-	it "should not save values for enumerated attribute" do
+	it "should not save values for non-column enumerated attributes" do
+		r=RaceCar.new
+		r.choke = :medium
+		r.save!
+		
+		s=RaceCar.find r.id
+		s.choke.should == :none
 	end
 	
 	it "should save string and retrieve string for non-enumerated column attributes" do

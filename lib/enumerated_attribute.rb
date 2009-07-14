@@ -12,23 +12,6 @@ module EnumeratedAttribute
 	class InvalidEnumeration < EnumeratedAttributeError; end
 	class InvalidDefinition < EnumeratedAttributeError; end
 
-=begin
-	#these should be removed for derivations of ActiveRecord and Datamapper (see Integrations::ActiveRecord)
-	def enum_attr_reader(*args, &block)
-		if args.length > 1
-			args << {} if args.length == 2
-			args[2][:writer] = false if args[2].kind_of?(Hash)
-		end
-		enumerated_attribute(*args, &block)
-	end
-	def enum_attr_writer(*args, &block)
-		if args.length > 1
-			args << {} if args.length == 2
-			args[2][:reader] = false if args[2].kind_of?(Hash)
-		end
-		enumerated_attribute(*args, &block)
-	end
-=end
   
   def enumerated_attribute(*args, &block)
     return if args.empty?
@@ -60,9 +43,9 @@ module EnumeratedAttribute
 		#define_enumerated_attribute_[writer, reader] may be modified in a named Integrations module (see Integrations::ActiveRecord)
 		class_eval <<-MAP
 			unless @integration_map
-				@integration_map = Integrations.find_integration_map(self) unless @integration_map
+				@integration_map = Integrations.find_integration_map(self)
 				@integration_map[:aliasing].each do |p|
-					alias_method(p[0], p[1])
+					alias_method(p.first, p.last)
 				end
 				include(@integration_map[:module]) if @integration_map[:module]
 				
@@ -87,7 +70,7 @@ module EnumeratedAttribute
     
     #define dynamic methods in method_missing
     class_eval <<-METHOD
-      unless @missing_method_for_enumerated_attribute_defined
+      unless @enumerated_attribute_define_once_only
         if method_defined?(:method_missing)
           alias_method(:method_missing_without_enumerated_attribute, :method_missing)
           def method_missing(methId, *args, &block)
@@ -100,15 +83,20 @@ module EnumeratedAttribute
             super 
           end
         end
-        @missing_method_for_enumerated_attribute_defined = true
+        @enumerated_attribute_define_once_only = true
       
         alias_method :respond_to_without_enumerated_attribute?, :respond_to?
         def respond_to?(method)
           respond_to_without_enumerated_attribute?(method) || !!parse_dynamic_method_parts(method.to_s)
-        end
+        end				
 				
-        
-        private				
+				def initialize_enumerated_attributes(only_if_nil = false)
+					self.class.enumerated_attribute_initial_value_list.each do |k,v|
+						self.write_enumerated_attribute(k, v) unless (only_if_nil && read_enumerated_attribute(k) != nil)
+					end
+				end
+
+        private
         
         def parse_dynamic_method_parts(meth_name)
           return(nil) unless meth_name[-1, 1] == '?'
@@ -150,6 +138,7 @@ module EnumeratedAttribute
           
           true
         end
+								
       end
     METHOD
 
@@ -172,61 +161,38 @@ module EnumeratedAttribute
 			def #{incrementor}
 				z = @@enumerated_attribute_values[:#{attr_name}]
 				index = z.index(@#{attr_name})
-				write_attribute(:#{attr_name}, z[index >= z.size-1 ? 0 : index+1])
+				write_enumerated_attribute(:#{attr_name}, z[index >= z.size-1 ? 0 : index+1])
 			end
 			def #{decrementor}
 				z = @@enumerated_attribute_values[:#{attr_name}]
 				index = z.index(@#{attr_name})
-				write_attribute(:#{attr_name}, z[index > 0 ? index-1 : z.size-1])
+				write_enumerated_attribute(:#{attr_name}, z[index > 0 ? index-1 : z.size-1])
 			end
 		ENUM
 		
-		if (initial_value = opts[:init] || initial_value)
-			unless @enumerated_attribute_init
-				@enumerated_attribute_init = {}
-				define_enumerated_attribute_new_method
-			end
-			@enumerated_attribute_init[attr_sym] = initial_value
+		unless @enumerated_attribute_init
+			define_enumerated_attribute_new_method
 		end
-		
+		@enumerated_attribute_init ||= {}		
+		if (initial_value = opts[:init] || initial_value)
+			@enumerated_attribute_init[attr_sym] = initial_value 
+		end
+		class_eval do
+			class << self
+				def enumerated_attribute_initial_value_list; @enumerated_attribute_init; end
+			end
+		end		
 	end
 	
-
-=begin
-    #establish initial value
-    if (initial_value = opts[:init] || initial_value)
-      class_eval <<-INITVAL
-        unless @enumerated_attribute_init
-          @enumerated_attribute_init = {}
-          class << self
-            def new_with_enumerated_attribute(*args, &block)
-              result = new_without_enumerated_attribute(*args)
-              @enumerated_attribute_init.each do |k,v|
-                result.instance_variable_set("@"+k.to_s, v)
-              end
-							yield result if block_given?
-              result
-            end
-            alias_method :new_without_enumerated_attribute, :new
-            alias_method :new, :new_with_enumerated_attribute
-          end
-        end
-        @enumerated_attribute_init[:#{attr_name}] = :#{initial_value}
-      INITVAL
-    end    
-  end
-=end
-
   #a short cut
   alias :enum_attr :enumerated_attribute
   
   def define_enumerated_attribute_custom_method(symbol, attr_name, value, negated)
     define_method symbol do
-      ival = read_attribute(attr_name)
+      ival = read_enumerated_attribute(attr_name)
       negated ? ival != value : ival == value
     end
-  end	
-	
+  end
 
   private
 	  
@@ -237,9 +203,7 @@ module EnumeratedAttribute
 				alias_method :new_without_enumerated_attribute, :new
 				def new(*args, &block)
 					result = new_without_enumerated_attribute(*args)
-					@enumerated_attribute_init.each do |k,v|
-						result.write_attribute(k, v)
-					end
+					result.initialize_enumerated_attributes
 					yield result if block_given?
 					result
 				end
@@ -250,14 +214,14 @@ module EnumeratedAttribute
   def define_enumerated_attribute_writer_method name
     name = name.to_s
     class_eval <<-METHOD
-      def #{name}=(val); write_attribute(:#{name}, val); end    
+      def #{name}=(val); write_enumerated_attribute(:#{name}, val); end    
     METHOD
   end
   
 	def define_enumerated_attribute_reader_method name
 		name = name.to_s
 		class_eval <<-METHOD
-			def #{name}; read_attribute(:#{name}); end
+			def #{name}; read_enumerated_attribute(:#{name}); end
 		METHOD
 	end
 	
@@ -267,7 +231,7 @@ module EnumeratedAttribute
 				klass.extend(ClassMethods)
 			end
 
-			def write_attribute(name, val)
+			def write_enumerated_attribute(name, val)
 				name = name.to_s
 				val = val.to_sym if val
 				unless enumerated_attribute_allows_value?(name, val)
@@ -276,9 +240,8 @@ module EnumeratedAttribute
 				end
 				instance_variable_set('@'+name, val)
 			end
-			#private_class_method :write_active_record_attribute
 			
-			def read_attribute(name)
+			def read_enumerated_attribute(name)
 				return instance_variable_get('@'+name.to_s)
 			end
 
@@ -292,9 +255,9 @@ module EnumeratedAttribute
 				klass.extend(ClassMethods)
 			end
 			
-			def write_attribute(name, val)
+			def write_enumerated_attribute(name, val)
 				name = name.to_s
-				return write_active_record_attribute(name, val) unless self.has_enumerated_attribute?(name)
+				return write_attribute(name, val) unless self.has_enumerated_attribute?(name)
 				val_str = val.to_s if val
 				val_sym = val.to_sym if val
 				unless enumerated_attribute_allows_value?(name, val_sym)
@@ -302,51 +265,81 @@ module EnumeratedAttribute
 					raise(InvalidEnumeration, ":#{val_str} is not a defined enumeration value for the '#{name}' attribute", caller)
 				end
 				return instance_variable_set('@'+name, val_sym) unless self.has_attribute?(name)
-				puts "writing :#{name} => #{val_str}"
-				write_active_record_attribute(name, val_str)
+				write_attribute(name, val_str)
 			end
-			#private_class_method :write_active_record_attribute
 			
-			def read_attribute(name)
+			def read_enumerated_attribute(name)
 				name = name.to_s
 				#if not enumerated - let active record handle it
-				return read_active_record_attribute(name) unless self.has_enumerated_attribute?(name)
+				return read_attribute(name) unless self.has_enumerated_attribute?(name)
 				#if enumerated, is it an active record attribute, if not, the value is stored in an instance variable
 				return instance_variable_get('@'+name) unless self.has_attribute?(name)
 				#this is an enumerated active record attribute
-				val = read_active_record_attribute(name)
-				puts "read :#{name} => #{val} (#{val.class.name})"
+				val = read_attribute(name)
 				val = val.to_sym if (!!val && self.has_enumerated_attribute?(name))
 				val
 			end
-			#private_class_method :read_active_record_attribute
 			
 			def attributes=(attrs, guard_protected_attributes=true)
 				return if attrs.nil?
 				#check the attributes then turn them over 
-				attrs.each do |k,v|
-					if (has_enumerated_attribute?(k) && !enumerated_attribute_allows_value?(k, v))
-						raise InvalidEnumeration, ":#{val} is not a defined enumeration value for the '#{name}' attribute", caller
+				attrs.each do |k, v|
+					if has_enumerated_attribute?(k)
+						unless enumerated_attribute_allows_value?(k, v)
+							raise InvalidEnumeration, ":#{v.to_s} is not a defined enumeration value for the '#{k.to_s}' attribute", caller
+						end
+						attrs[k] = v.to_s
 					end
 				end
+				#puts "attrs = #{attrs.inspect}"
 				
-				self.active_record_attributes(attrs, guard_protected_attributes)
+				self.set_active_record_attributes(attrs, guard_protected_attributes)
 			end
+			
+			def attributes
+				self.get_active_record_attributes.map do |k,v|
+					has_enumerated_attribute?(k) ? v.to_sym : v
+				end
+			end
+			
+      def [](attr_name); read_enumerated_attribute(attr_name); end
+      def []=(attr_name, value); write_enumerated_attribute(attr_name, value); end
+			
+=begin			def initialize_enumerated_attributes(only_if_nil = false, only_without_column = false)
+				self.class.enumerated_attribute_initial_value_list.each do |k,v|
+					unless (only_without_column && has_attribute?(k))
+						self.write_enumerated_attribute(k, v) unless (only_if_nil && read_enumerated_attribute(k) != nil)
+					end
+				end
+			end
+=end						
+			private
 						
+			def attribute=(attr_name, value); write_enumerated_attribute(attr_name, value); end
+									
 			module ClassMethods
 				private
-
+				
+				def instantiate(record)
+					object = super(record)
+					#object.initialize_enumerated_attributes(false, true)
+					@enumerated_attribute_init.each do |k,v|
+						unless object.has_attribute?(k)
+							object.write_enumerated_attribute(k, v)
+						end
+					end
+					object
+				end
+				
 				def define_enumerated_attribute_new_method
 					class_eval <<-INITVAL
 						class << self
 							alias_method :new_without_enumerated_attribute, :new
 							def new(*args, &block)
 								result = new_without_enumerated_attribute(*args, &block)
-								params = (!args.empty? && args[0].instance_of?(Hash)) ? args[0] : {}
-								@enumerated_attribute_init.each do |k,v| 
-									result.write_attribute(k, v) unless params.key?(k)
-								end
-								params.each { |k, v| result.write_attribute(k, v) }
+								params = (!args.empty? && args.first.instance_of?(Hash)) ? args.first : {}
+								params.each { |k, v| result.write_enumerated_attribute(k, v) }
+								result.initialize_enumerated_attributes(true)
 								yield result if block_given?
 								result
 							end
@@ -362,20 +355,18 @@ module EnumeratedAttribute
 	
 		@@integration_map = {}
 		
-		def self.add_integration_map(base_klass_name, module_object, aliasing_array)
+		def self.add_integration_map(base_klass_name, module_object, aliasing_array=[])
 			@@integration_map[base_klass_name] = {:module=>module_object, :aliasing=>aliasing_array}
 		end
 		class << self
 			alias_method(:add, :add_integration_map)
 		end
-			
+		
 		#included mappings
-		add('Object', EnumeratedAttribute::Integrations::Object, [])
-		add('ActiveRecord::Base', EnumeratedAttribute::Integrations::ActiveRecord, [
-			[:read_active_record_attribute, :read_attribute], 
-			[:active_record_attributes, :attributes=],
-			[:write_active_record_attribute, :write_attribute]
-			])
+		add('Object', EnumeratedAttribute::Integrations::Object)
+		add('ActiveRecord::Base', EnumeratedAttribute::Integrations::ActiveRecord, 
+			[	[:set_active_record_attributes, :attributes=],
+				[:get_active_record_attributes, :attributes]	])
 		
 		def self.find_integration_map(klass)
 			path = "#{klass}"
@@ -426,13 +417,13 @@ module EnumeratedAttribute
     end
     
     def is_not(*args)
-      arg = args[0] if args.length > 0
+      arg = args.first if args.length > 0
       MethodDefinition.new(nil, arg, true)
     end
     alias :isnt :is_not
     
     def is(*args)
-      arg = args[0] if args.length > 0
+      arg = args.first if args.length > 0
       MethodDefinition.new(nil, arg)
     end
 
@@ -441,7 +432,7 @@ module EnumeratedAttribute
       
       meth_def = nil
       if args.size > 0
-        arg = args[0]
+        arg = args.first
         if arg.instance_of?(EnumeratedAttribute::MethodDefinition)
           if arg.has_method_name?
             raise_method_syntax_error(meth_name, arg.method_name)
