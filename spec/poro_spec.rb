@@ -1,6 +1,32 @@
 require 'tractor'
+require 'plural'
+
+describe "Plural" do
+	it "should have plural accessor :boxes for :box" do
+		p=Plural.new
+		p.methods.should include("boxes")
+		p.boxes.should == [:small, :medium, :large]
+	end
+	it "should have plural accessor :batches for :batch" do
+		p=Plural.new
+		p.methods.should include("batches")
+		p.batches.should == [:none, :daily, :weekly]
+	end
+	it "should have plural accessor :cherries for :cherry" do
+		p=Plural.new
+		p.methods.should include("cherries")
+		p.cherries.should == [:red, :green, :yellow]
+	end
+	it "should have plural accessor :guys for :guy" do
+		p=Plural.new
+		p.methods.should include("guys")
+		p.guys.should == [:handsome, :funny, :cool]
+	end
+	
+end
 
 describe "Tractor" do
+
   it "should initialize :gear for two instances of the same class" do
 		t=Tractor.new
 		t.gear.should == :neutral

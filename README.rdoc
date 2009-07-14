@@ -31,6 +31,7 @@ Features include:
 * Run-time generated attribute predicates
 * Attribute initialization
 * Method definition short-hand (DSL)
+* ActiveRecord integration
 
 == Example
 
@@ -215,7 +216,8 @@ and decrementor (ie, +gears+, +gear_next+, +gear_previous+):
   t.lights_dec                      # => :off
   
 By default, the plugin uses the plural of the attribute for the accessor method name of the enumeration 
-values.  The pluralization is done simply by adding an 's'.  In the case of 'lights' as an 
+values.  The pluralization uses a simple algorithm which does not support irregular forms.  In 
+the case of 'lights' as an 
 attribute, the default pluralization does not work, so the accessor can be changed using 
 the :plural option.  Likewise, the decrementor
 and incrementor have options :decrementor and :incrementor, or :inc and :dec, for changing
@@ -303,6 +305,57 @@ well as a couple predicate methods.  +upshift+ increments the gear attribute unt
 it reaches over_drive and does not allow a wrap around.  +downshift+ decrements
 until the attribute reaches neutral.
 
+=== Integration
+
+==== ActiveRecord integration
+
+The plugin can be used with ActiveRecord.  Enumerated attributes may be declared on 
+column attributes or as independent enumerations.  Declaring an enumerated attribute
+on a column attribute will enforce the enumeration using symbols.  The 
+enumerated column attribute must be declared as a STRING in the database schema.  
+The enumerated attribute will be stored as a string but retrieved in code as a symbol.  The 
+enumeration functionality is consistent across integrations.
+
+  require 'enumerated_attribute'
+  require 'active_record'
+	
+  class Order < ActiveRecord::Base	
+    enum_attr :status, %w(^hold, processing, delayed, shipped)
+    enum_attr :billing_status, 
+      %w(^unauthorized, authorized, auth_failed, captured, capture_failed, closed)
+  end
+	
+  o = Order.new
+  o.status                          # => :hold
+  o.billing_status                  # => :unauthorized
+  o.save!
+	
+  o = Order.new(:invoice=>'43556334-W84', :status=>:processing, :billing=>:authorized)
+  o.save!
+  o.status                          # => :processing
+  o.invoice                         # => "43556334-W84"
+	
+
+=== Implementation Notes
+
+==== New and Method_missing methods
+
+The plugin chains both the 'new' and the 'method_missing' methods.  Any 'new' and 'method_missing' 
+implementations in the same class declaring an enumerated_attribute should come before the 
+declaration; otherwise, the 'new' and 'method_missing' implementations must chain in order to avoid 
+overwriting the plugin's methods.  The best approach is shown here:
+
+  class A
+    def self.new(*args)
+      ...
+    end
+    def self.method_missing(methId, *args, &blk)
+      ...
+    end
+		
+    enum_attr :state, %w(cold warm hot boiling)
+  end
+
 
 == Testing
 
@@ -310,12 +363,21 @@ The plugin uses RSpec for testing.  Make sure you have the RSpec gem installed:
 
   gem install rspec
   
-To test the plugin, run:
+To test the plugin for regular ruby objects, run:
 
-  rake spec:test
+  rake spec
+	
+Testing ActiveRecord integration requires the install of Sqlite3 and the 
+sqlite3-ruby gem.  To test ActiveRecord, run:
+
+	rake spec:active_record
+	
+To test all specs:
+
+	rake spec:all
 
 
 == Dependencies
 
-By default, there are no dependencies.
-
+* ActiveRecord
+* Sqlite3 and sqlite3-ruby gem (for testing)

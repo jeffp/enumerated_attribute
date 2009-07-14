@@ -40,6 +40,8 @@ namespace :spec do
 		t.libs << 'lib' << 'spec/active_record'
 		t.rcov = false
 	end
+	desc "Run all specs"
+	task :all=>[:spec, :active_record] 
 end
 
 =begin

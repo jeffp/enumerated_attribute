@@ -1,17 +1,9 @@
 module EnumeratedAttribute
 
-#todo: is_not/is -- test raised errors contain useful info on invalid syntax
-#todo: dynamic_enums
-#todo: system wide constants
-#todo: setter_callback
-#todo: ArgumentError may need to use Errors for ActiveRecord
-#todo: attribute methods gear.enums, gear.inc, gear.dec
-
 	class EnumeratedAttributeError < StandardError; end
 	class IntegrationError < EnumeratedAttributeError; end
 	class InvalidEnumeration < EnumeratedAttributeError; end
 	class InvalidDefinition < EnumeratedAttributeError; end
-
   
   def enumerated_attribute(*args, &block)
     return if args.empty?
@@ -23,9 +15,19 @@ module EnumeratedAttribute
     
     raise(InvalidDefinition, 'second argument of enumerated_attribute/enum_attr is not an array of symbols or strings representing the enum values', caller) if enums.empty?
 
-    #todo: better pluralization of attribute
     initial_value = nil
-    plural_name = opts[:plural] || opts[:enums_accessor] || opts[:enums] || "#{attr_name}s"
+    plural_name = opts[:plural] || opts[:enums_accessor] || opts[:enums] || begin 
+			case
+			when attr_name =~ /[aeiou]y$/
+				"#{attr_name}s"
+			when attr_name =~ /y$/
+				attr_name.sub(/y$/, 'ies')
+			when attr_name =~ /(sh|ch|x|s)$/
+				"#{attr_name}es"
+			else
+				"#{attr_name}s"
+			end
+		end
     incrementor = opts[:incrementor] || opts[:inc] || "#{attr_name}_next"
     decrementor = opts[:decrementor] || opts[:dec] || "#{attr_name}_previous"
 
@@ -49,14 +51,14 @@ module EnumeratedAttribute
 				end
 				include(@integration_map[:module]) if @integration_map[:module]
 				
-				def has_enumerated_attribute?(name)
+				def self.has_enumerated_attribute?(name)
 					@@enumerated_attribute_names.include?(name.to_s)
 				end
-				def enumerated_attribute_allows_nil?(name)
+				def self.enumerated_attribute_allows_nil?(name)
 					return (false) unless @@enumerated_attribute_options[name.to_sym]
 					@@enumerated_attribute_options[name.to_sym][:nil] || false
 				end
-				def enumerated_attribute_allows_value?(name, value)
+				def self.enumerated_attribute_allows_value?(name, value)
 					return (false) unless @@enumerated_attribute_values[name.to_sym]
 					return enumerated_attribute_allows_nil?(name) if value == nil
 					@@enumerated_attribute_values[name.to_sym].include?(value.to_sym)
@@ -234,7 +236,7 @@ module EnumeratedAttribute
 			def write_enumerated_attribute(name, val)
 				name = name.to_s
 				val = val.to_sym if val
-				unless enumerated_attribute_allows_value?(name, val)
+				unless self.class.enumerated_attribute_allows_value?(name, val)
 					raise(InvalidEnumeration, "nil is not allowed on '#{name}' attribute, set :nil=>true option", caller) unless val
 					raise(InvalidEnumeration, ":#{val} is not a defined enumeration value for the '#{name}' attribute", caller) 
 				end
@@ -257,10 +259,10 @@ module EnumeratedAttribute
 			
 			def write_enumerated_attribute(name, val)
 				name = name.to_s
-				return write_attribute(name, val) unless self.has_enumerated_attribute?(name)
+				return write_attribute(name, val) unless self.class.has_enumerated_attribute?(name)
 				val_str = val.to_s if val
 				val_sym = val.to_sym if val
-				unless enumerated_attribute_allows_value?(name, val_sym)
+				unless self.class.enumerated_attribute_allows_value?(name, val_sym)
 					raise(InvalidEnumeration, "nil is not allowed on '#{name}' attribute, set :nil=>true option", caller) unless val
 					raise(InvalidEnumeration, ":#{val_str} is not a defined enumeration value for the '#{name}' attribute", caller)
 				end
@@ -271,12 +273,12 @@ module EnumeratedAttribute
 			def read_enumerated_attribute(name)
 				name = name.to_s
 				#if not enumerated - let active record handle it
-				return read_attribute(name) unless self.has_enumerated_attribute?(name)
+				return read_attribute(name) unless self.class.has_enumerated_attribute?(name)
 				#if enumerated, is it an active record attribute, if not, the value is stored in an instance variable
 				return instance_variable_get('@'+name) unless self.has_attribute?(name)
 				#this is an enumerated active record attribute
 				val = read_attribute(name)
-				val = val.to_sym if (!!val && self.has_enumerated_attribute?(name))
+				val = val.to_sym if (!!val && self.class.has_enumerated_attribute?(name))
 				val
 			end
 			
@@ -284,35 +286,26 @@ module EnumeratedAttribute
 				return if attrs.nil?
 				#check the attributes then turn them over 
 				attrs.each do |k, v|
-					if has_enumerated_attribute?(k)
-						unless enumerated_attribute_allows_value?(k, v)
+					if self.class.has_enumerated_attribute?(k)
+						unless self.class.enumerated_attribute_allows_value?(k, v)
 							raise InvalidEnumeration, ":#{v.to_s} is not a defined enumeration value for the '#{k.to_s}' attribute", caller
 						end
 						attrs[k] = v.to_s
 					end
 				end
-				#puts "attrs = #{attrs.inspect}"
 				
-				self.set_active_record_attributes(attrs, guard_protected_attributes)
+				super
 			end
 			
 			def attributes
-				self.get_active_record_attributes.map do |k,v|
-					has_enumerated_attribute?(k) ? v.to_sym : v
+				super.map do |k,v|
+					self.class.has_enumerated_attribute?(k) ? v.to_sym : v
 				end
 			end
 			
       def [](attr_name); read_enumerated_attribute(attr_name); end
       def []=(attr_name, value); write_enumerated_attribute(attr_name, value); end
 			
-=begin			def initialize_enumerated_attributes(only_if_nil = false, only_without_column = false)
-				self.class.enumerated_attribute_initial_value_list.each do |k,v|
-					unless (only_without_column && has_attribute?(k))
-						self.write_enumerated_attribute(k, v) unless (only_if_nil && read_enumerated_attribute(k) != nil)
-					end
-				end
-			end
-=end						
 			private
 						
 			def attribute=(attr_name, value); write_enumerated_attribute(attr_name, value); end
@@ -320,9 +313,14 @@ module EnumeratedAttribute
 			module ClassMethods
 				private
 				
+				def construct_attributes_from_arguments(attribute_names, arguments)
+					attributes = super
+					attributes.each { |k,v| attributes[k] = v.to_s if has_enumerated_attribute?(k) }
+					attributes
+				end			
+				
 				def instantiate(record)
 					object = super(record)
-					#object.initialize_enumerated_attributes(false, true)
 					@enumerated_attribute_init.each do |k,v|
 						unless object.has_attribute?(k)
 							object.write_enumerated_attribute(k, v)
@@ -364,9 +362,7 @@ module EnumeratedAttribute
 		
 		#included mappings
 		add('Object', EnumeratedAttribute::Integrations::Object)
-		add('ActiveRecord::Base', EnumeratedAttribute::Integrations::ActiveRecord, 
-			[	[:set_active_record_attributes, :attributes=],
-				[:get_active_record_attributes, :attributes]	])
+		add('ActiveRecord::Base', EnumeratedAttribute::Integrations::ActiveRecord)
 		
 		def self.find_integration_map(klass)
 			path = "#{klass}"

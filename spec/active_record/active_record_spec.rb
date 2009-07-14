@@ -5,6 +5,39 @@ require 'race_car'
 
 describe "RaceCar" do
 	
+	it "should have dynamic predicate methods for :gear attribute" do
+		r=RaceCar.new
+		r.gear = :second
+		r.gear_is_in_second?.should be_true
+		r.gear_not_in_second?.should be_false
+		r.gear_is_nil?.should be_false
+		r.gear_is_not_nil?.should be_true
+	end
+	
+	it "should have working dynamic predicate methods on retrieved objects" do
+		r=RaceCar.new
+		r.gear = :second
+		r.save!
+		
+		s=RaceCar.find r.id
+		s.should_not be_nil
+		s.gear_is_in_second?.should be_true
+		s.gear_is_not_in_second?.should be_false
+		s.gear_is_nil?.should be_false
+		s.gear_is_not_nil?.should be_true
+	end
+	
+	it "should find record by enumerated column :gear attributes" do
+		r=RaceCar.new
+		r.gear = :second
+		r.name = 'special'
+		r.save!
+		
+		s=RaceCar.find_by_gear_and_name(:second, 'special')
+		s.should_not be_nil
+		s.id.should == r.id
+	end
+	
 	it "should initialize according to enumerated attribute definitions" do
 		r = RaceCar.new
 		r.gear.should == :neutral
