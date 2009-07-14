@@ -37,7 +37,7 @@ class Tractor
     decrementor :side_light_down    
   end
   
-  enum_attr_reader :temperature, %w(low med high)
-  enum_attr_writer :ignition, %w(^off activate)
+  #enum_attr_reader :temperature, %w(low med high)
+  #enum_attr_writer :ignition, %w(^off activate)
     
 end
