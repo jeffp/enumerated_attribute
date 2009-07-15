@@ -233,7 +233,7 @@ the plugin provides a short-hand for defining these methods in the
   class Tractor
     enum_attr :gear, %w(reverse ^neutral first second over_drive) do
       parked? :neutral
-      driving? [:first, :second, :third]
+      driving? [:first, :second, :over_drive]
     end
   end
 
@@ -246,7 +246,7 @@ the plugin's short-hand.
 The first method, parked?, defines a method which evaluates 
 the code {@gear == :neutral}.  The second method, driving?, evaluates
 to true if the attribute is set to one of the enumeration values defined in the array 
-[:first, :second, :third].
+[:first, :second, :over_drive].
 
 The same short-hand can be used to define methods where the attribute 'is not' equal to the
 indicated value or 'is not' included in the array of values.
@@ -254,7 +254,7 @@ indicated value or 'is not' included in the array of values.
   class Tractor
     enum_attr :gear, %w(reverse ^neutral first second over_drive) do
       not_parked? is_not :neutral
-      not_driving? is_not [:first, :second, :third]
+      not_driving? is_not [:first, :second, :over_drive]
     end
   end
 
@@ -267,7 +267,7 @@ a block can be used to define the method body.
   class Tractor
     enum_attr :gear, %w(reverse ^neutral first second over_drive) do
       parked? :neutral
-      driving? [:first, :second, :third]
+      driving? [:first, :second, :over_drive]
     end
     enum_attr :plow, %w(^up down), :plural=>:plow_values do
       plowing? { self.gear_is_in_first? && @plow == :down }
@@ -286,7 +286,7 @@ as bounded incrementor and decrementor of the gear attribute.
   class Tractor
     enum_attr :gear, %w(reverse ^neutral first second over_drive) do
       parked? :neutral
-      driving? [:first, :second, :third]
+      driving? [:first, :second, :over_drive]
       upshift { self.gear_is_in_over_drive? ? self.gear : self.gear_next }
       downshift { self.driving? ? self.gear_previous : self.gear }      
     end
