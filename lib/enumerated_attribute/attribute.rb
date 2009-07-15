@@ -9,9 +9,7 @@ module EnumeratedAttribute
 	class InvalidDefinition < EnumeratedAttributeError; end
 
 	module Attribute
-#		def included(klass); klass.extend(ClassMethods); end
-		
-#		module ClassMethods
+	
 			private
 			def create_enumerated_attribute(*args, &block)
 				return if args.empty?
@@ -203,6 +201,12 @@ module EnumeratedAttribute
 				
 			end		
 		end
-	#end	
+		
+		#these methods are called by create_enumerated_attribute but defined by the integration (see Integrations::ActiveRecord and Integrations::Object) may alter them
+		#def define_enumerated_attribute_custom_method(symbol, attr_name, value, negated)
+		#private
+		#def define_enumerated_attribute_new_method
+		#def define_enumerated_attribute_writer_method name
+		#def define_enumerated_attribute_reader_method name		
 	
 end

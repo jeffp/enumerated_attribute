@@ -2,7 +2,7 @@
 require 'rake/rdoctask'
 require 'rake/gempackagetask'
 require 'rake/contrib/sshpublisher'
- 
+
 spec = Gem::Specification.new do |s|
   s.name = 'enumerated_attribute'
   s.version = '0.1.6'

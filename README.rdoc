@@ -349,7 +349,9 @@ overwriting the plugin's methods.  The best approach is shown here:
     def self.new(*args)
       ...
     end
-    def self.method_missing(methId, *args, &blk)
+
+    private
+    def method_missing(methId, *args, &blk)
       ...
     end
 		
