@@ -5,10 +5,10 @@ require 'rake/contrib/sshpublisher'
  
 spec = Gem::Specification.new do |s|
   s.name = 'enumerated_attribute'
-  s.version = '0.1.4'
+  s.version = '0.1.5'
   s.platform = Gem::Platform::RUBY
-  s.description = 'A enumerated attribute accessor'
-  s.summary = 'Defines enumerated attributes, initial state and dynamic state methods.'
+  s.description = 'An enumerated attribute accessor'
+  s.summary = 'Add enumerated attributes with initialization, dynamic predicate methods, more ...'
   
   s.files = FileList['{examples,lib,tasks,spec}/**/*'] + %w(CHANGELOG.rdoc init.rb LICENSE Rakefile README.rdoc .gitignore) - FileList['**/*.log']
   s.require_path = 'lib'
@@ -17,7 +17,7 @@ spec = Gem::Specification.new do |s|
   
   s.author = 'Jeff Patmon'
   s.email = 'jpatmon@yahoo.com'
-  s.homepage = 'http://www.jpatmon.com'
+  s.homepage = 'http://github.com/jeffp/enumerated_attribute/tree/master'
 end
  
 require 'spec/version'

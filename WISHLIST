@@ -1,6 +1,5 @@
 
 #todo: is_not/is -- test raised errors contain useful info on invalid syntax
-#todo: dynamic_enums 
 #todo: system wide constants
 #todo: setter_callback
 #todo: attribute methods gear.enums, gear.inc, gear.dec

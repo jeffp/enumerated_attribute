@@ -25,7 +25,7 @@ class Tractor
     plowing? { self.gear_is_in_first? && self.plow == :down }
   end
   
-  enum_attr :lights, LIGHTS_ENUM_VALUES, :enums_accessor=>:lights_enums, :init=>:off, :decrementor=>:turn_lights_down, :incrementor=>:turn_lights_up do
+  enum_attr :lights, LIGHTS_ENUM_VALUES, :plural=>:lights_enums, :init=>:off, :decrementor=>:turn_lights_down, :incrementor=>:turn_lights_up do
     lights_are_on? [:low, :high]
     lights_are_not_on? :off
   end

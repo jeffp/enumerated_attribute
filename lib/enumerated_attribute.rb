@@ -49,6 +49,7 @@ module EnumeratedAttribute
 				@integration_map[:aliasing].each do |p|
 					alias_method(p.first, p.last)
 				end
+				include(EnumeratedAttribute::Integrations::Default)
 				include(@integration_map[:module]) if @integration_map[:module]
 				
 				def self.has_enumerated_attribute?(name)
@@ -183,51 +184,53 @@ module EnumeratedAttribute
 			class << self
 				def enumerated_attribute_initial_value_list; @enumerated_attribute_init; end
 			end
-		end		
+		end
+		
+		def self.define_enumerated_attribute_custom_method(symbol, attr_name, value, negated)
+			define_method symbol do
+				ival = read_enumerated_attribute(attr_name)
+				negated ? ival != value : ival == value
+			end
+		end
+		
 	end
+	alias_method :enum_attr, :enumerated_attribute
 	
-  #a short cut
-  alias :enum_attr :enumerated_attribute
-  
+=begin  
   def define_enumerated_attribute_custom_method(symbol, attr_name, value, negated)
     define_method symbol do
       ival = read_enumerated_attribute(attr_name)
       negated ? ival != value : ival == value
     end
   end
-
-  private
+=end
 	  
-	#these implementations are for basic ruby objects - integrations (see Integrations::ActiveRecord) may alter them
-	def define_enumerated_attribute_new_method
-		class_eval <<-NEWMETH
-			class << self
-				alias_method :new_without_enumerated_attribute, :new
-				def new(*args, &block)
-					result = new_without_enumerated_attribute(*args)
-					result.initialize_enumerated_attributes
-					yield result if block_given?
-					result
-				end
-			end
-		NEWMETH
-	end
-	
-  def define_enumerated_attribute_writer_method name
-    name = name.to_s
-    class_eval <<-METHOD
-      def #{name}=(val); write_enumerated_attribute(:#{name}, val); end    
-    METHOD
-  end
-  
-	def define_enumerated_attribute_reader_method name
-		name = name.to_s
-		class_eval <<-METHOD
-			def #{name}; read_enumerated_attribute(:#{name}); end
-		METHOD
-	end
+	#these implementations are for basic ruby objects - integrations (see Integrations::ActiveRecord and Integrations::Object) may alter them
+	#def define_enumerated_attribute_new_method
+  #def define_enumerated_attribute_writer_method name
+	#def define_enumerated_attribute_reader_method name
 	
 	module Integrations
+		module Default
+			def self.included(klass); klass.extend(ClassMethods); end
+		
+			module ClassMethods
+				def define_enumerated_attribute_writer_method name
+					name = name.to_s
+					class_eval <<-METHOD
+						def #{name}=(val); write_enumerated_attribute(:#{name}, val); end    
+					METHOD
+				end
+				
+				def define_enumerated_attribute_reader_method name
+					name = name.to_s
+					class_eval <<-METHOD
+						def #{name}; read_enumerated_attribute(:#{name}); end
+					METHOD
+				end
+			end
+		end
+		
 		module Object
 			def self.included(klass)
 				klass.extend(ClassMethods)
@@ -248,6 +251,22 @@ module EnumeratedAttribute
 			end
 
 			module ClassMethods
+				private
+				
+				def define_enumerated_attribute_new_method
+					class_eval <<-NEWMETH
+						class << self
+							alias_method :new_without_enumerated_attribute, :new
+							def new(*args, &block)
+								result = new_without_enumerated_attribute(*args)
+								result.initialize_enumerated_attributes
+								yield result if block_given?
+								result
+							end
+						end
+					NEWMETH
+				end
+				
 			end
 		
 		end
