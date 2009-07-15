@@ -1,5 +1,9 @@
 == master
 
+== 0.1.4 / 2009-07-14
+
+* Removed log files from gem build
+
 == 0.1.3 / 2009-07-14
 
 * Adds Ingration module supporting Object and ActiveRecord
