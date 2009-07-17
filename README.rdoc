@@ -1,6 +1,6 @@
 = enumerated_attribute
 
-+enumerated_attribute+ simplifies the definition of enumeration-based attributes, their accessors, initializers and common predicate and support methods.
++enumerated_attribute+ simplifies the definition of enumeration-based attributes, their accessors, initializers and common predicate and enumeration methods.
 
 == Resources
 
@@ -22,13 +22,13 @@ costs and wastes time.
 
 +enumerated_attribute+ simplifies the definition of enumerated attributes by emphasizing 
 convention and DRYing the implementation.  Repetitive code such as initializers, accessors, 
-predicate and support methods are automatically generated, resulting in better 
-encapsulation and quicker, more readable code.
+predicate and enumeration methods are automatically generated, resulting in better 
+encapsulation, quicker implementation and cleaner code.
 
 Features include:
 * Short and simple definition
-* Dynamically-generated support methods
-* Run-time generated attribute predicates
+* Auto-defined attribute methods
+* Dynamically-generated predicate methods
 * Attribute initialization
 * Method definition short-hand (DSL)
 * ActiveRecord integration
@@ -48,7 +48,7 @@ Here's a quick example of what +enumerated_attribute+ can do:
   
   t = Tractor.new
   t.gear                            # => :neutral
-  t.gear_is_in_neutral?             # => true
+  t.gear_is_neutral?                # => true
   t.driving?                        # => false
   t.upshift                         # => :first
   t.driving?                        # => true
@@ -87,8 +87,8 @@ form of +enumerated_attribute+ looks like this:
 Defining the attribute :gear has done a number things.  
 It has generated an instance variable '@gear', read/write accessors for the 
 attribute and support methods
-for the enumeration, including an incrementor and decrementor.  These methods are 
-demonstrated below using the Tractor class defined above:
+for the enumeration, such as incrementor and decrementor methods.  These methods are 
+demonstrated below using the Tractor class above:
 
   Tractor.instance_methods(false)
   # =>["gear", "gear=", "gears", "gear_next", "gear_previous", ...
@@ -119,15 +119,15 @@ of the enumeration array.  For example:
   t.gear_next                       # => :reverse
 
 
-==== Using Attribute Predicates
+==== Dynamically-Generating Predicates Methods
 
-Attribute predicates are methods used to query the state of the attribute, 
-for instance, gear_is_neutral? is a predicate method for the gear attribute.  
-The plugin will evaluate and respond to predicate methods
-for any attribute defined with it.  Predicate methods are not pre-generated.  By
-adhering to a specific format, the plugin can recognize attribute predicates
-and generate the methods dynamically.  +enumerated_attribute+ recognizes 
-methods of the following format:
+Predicate methods are methods that query the state of the attribute, 
+for instance, gear_is_neutral? is a predicate method that returns 'true' if 
+the gear attribute is in the :neutral state.  
+By default, predicate methods are not predefined, instead, they are dynamically generated.  
+The plugin will evaluate and respond to methods adhering to a format that it 
+can associate with an attribute name and one of the attribute's enumeration values.  
++enumerated_attribute+ recognizes predicate methods of the following format:
 
   {attribute name}_{anything}_{enumeration value}?
 
@@ -155,6 +155,27 @@ Basically, the shortest acceptable form of a predicate method is:
 
   t.gear_neutral?                   # => true
   t.gear_not_neutral?               # => false
+
+
+==== Abbreviating Predicate Methods
+
+In the case that an enumeration value is associated with only one 
+attribute, the attribute name can be left out of the predicate method name.
+The plugin will infer the attribute from the enum value in the method name.
+The abbreviate format can be written like this:
+
+  {anything}{_}{enumeration value}?
+	
+And results in the following possibilities:
+
+  t.gear = :neutral
+  t.neutral?                        # => true
+  t.is_neutral?                     # => true
+  t.not_neutral?                    # => false
+  t.is_not_neutral?                 # => false
+	
+Calling the abbreviated form of the method containing an enumeration value
+belonging to two or more attributes throws an AmbiguousMethod error.
 
 
 ==== Initializing Attributes

@@ -1,5 +1,14 @@
 == master
 
+== 0.1.7 / 2009-07-17
+
+* Added abbreviated predicate methods
+* Added and cleaned documentation
+
+== 0.1.6 / 2009-07-15
+
+* Refactored
+
 == 0.1.5 / 2009-07-14
 
 * Refactored to remove unnecessary class methods from class

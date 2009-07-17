@@ -5,7 +5,7 @@ require 'rake/contrib/sshpublisher'
 
 spec = Gem::Specification.new do |s|
   s.name = 'enumerated_attribute'
-  s.version = '0.1.6'
+  s.version = '0.1.7'
   s.platform = Gem::Platform::RUBY
   s.description = 'An enumerated attribute accessor'
   s.summary = 'Add enumerated attributes with initialization, dynamic predicate methods, more ...'
@@ -44,29 +44,6 @@ namespace :spec do
 	task :all=>[:spec, :active_record] 
 end
 
-=begin
-desc "Test the #{spec.name} plugin."
-Rake::TestTask.new(:test) do |t|
-  t.libs << 'lib'
-  t.libs << 'spec'
-  t.test_files = spec.test_files
-  t.verbose = true
-end
- 
-begin
-  require 'rcov/rcovtask'
-  namespace :test do
-    desc "Test the #{spec.name} plugin with Rcov."
-    Rcov::RcovTask.new(:rcov) do |t|
-      t.libs << 'lib'
-      t.test_files = spec.test_files
-      t.rcov_opts << '--exclude="^(?!lib/)"'
-      t.verbose = true
-    end
-  end
-rescue LoadError
-end
-=end
 
 desc "Generate documentation for the #{spec.name} plugin."
 Rake::RDocTask.new(:rdoc) do |rdoc|
