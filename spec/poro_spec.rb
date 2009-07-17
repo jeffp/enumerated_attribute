@@ -26,6 +26,31 @@ describe "Plural" do
 end
 
 describe "Tractor" do
+	
+	it "should not raise errors for dynamic predicate methods missing attribute name" do
+		t=Tractor.new
+		lambda{ t.neutral?.should be_true }.should_not raise_error
+		lambda{ t.is_neutral?.should be_true }.should_not raise_error
+		lambda{ t.not_neutral?.should be_false}.should_not raise_error
+		t.gear = :first
+		t.neutral?.should be_false
+		t.not_neutral?.should be_true
+	end
+	
+	it "should raise AmbiguousMethod when calling :off?" do
+		t=Tractor.new
+		lambda { t.off? }.should raise_error(EnumeratedAttribute::AmbiguousMethod)
+	end
+	
+	it "should raise AmbiguousMethod when calling :in_reverse?" do
+		t=Tractor.new
+		lambda {t.in_reverse?}.should raise_error(EnumeratedAttribute::AmbiguousMethod)
+	end
+	
+	it "should raise AmbiguousMethod when calling :not_reverse?" do
+		t=Tractor.new
+		lambda {t.not_reverse?}.should raise_error(EnumeratedAttribute::AmbiguousMethod)
+	end	
 
   it "should initialize :gear for two instances of the same class" do
 		t=Tractor.new

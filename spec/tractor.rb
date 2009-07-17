@@ -20,6 +20,8 @@ class Tractor
     upshift { self.gear_is_in_over_drive? ? self.gear : self.gear_next }
     downshift { self.driving? ? self.gear_previous : self.gear }
   end
+	
+	enum_attr :pto, %w(reverse ^off forward)
   
   enum_attr :plow, %w(^up down), :nil=>true do
     plowing? { self.gear_is_in_first? && self.plow == :down }

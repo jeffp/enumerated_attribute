@@ -7,6 +7,7 @@ module EnumeratedAttribute
 	class IntegrationError < EnumeratedAttributeError; end
 	class InvalidEnumeration < EnumeratedAttributeError; end
 	class InvalidDefinition < EnumeratedAttributeError; end
+	class AmbiguousMethod < EnumeratedAttributeError; end
 
 	module Attribute
 	
@@ -96,8 +97,8 @@ module EnumeratedAttribute
 					
 						alias_method :respond_to_without_enumerated_attribute?, :respond_to?
 						def respond_to?(method)
-							respond_to_without_enumerated_attribute?(method) || !!parse_dynamic_method_parts(method.to_s)
-						end				
+							respond_to_without_enumerated_attribute?(method) || (!!parse_dynamic_method_parts!(method.to_s) rescue false)
+						end
 						
 						def initialize_enumerated_attributes(only_if_nil = false)
 							self.class.enumerated_attribute_initial_value_list.each do |k,v|
@@ -107,7 +108,7 @@ module EnumeratedAttribute
 
 						private
 						
-						def parse_dynamic_method_parts(meth_name)
+						def parse_dynamic_method_parts!(meth_name)
 							return(nil) unless meth_name[-1, 1] == '?'
 							
 							middle = meth_name.chop #remove the ?
@@ -118,17 +119,31 @@ module EnumeratedAttribute
 									attr = name; break
 								end
 							end
-							return (nil) unless attr
-							attr_sym = attr.to_sym
 							
 							value = nil
-							if @@enumerated_attribute_values.key?(attr_sym)
-								@@enumerated_attribute_values[attr_sym].each do |v|
+							attr_sym = attr ? attr.to_sym : nil
+							if (enum_values = @@enumerated_attribute_values[attr_sym] )	#nil if [nil]
+								enum_values.each do |v|
 									if middle.sub!(Regexp.new(v.to_s+"$"), "")
 										value = v; break
 									end
+								end	
+							else
+								#search through enum values one at time and identify any ambiguities
+								@@enumerated_attribute_values.each do |attr_key,enums|
+									enums.each do|v|
+										if middle.match(v.to_s+"$")
+											raise(AmbiguousMethod, meth_name+" is ambiguous, use something like "+attr_sym.to_s+(middle[0,1]=='_'? '' : '_')+middle+"? or "+attr_key.to_s+(middle[0,1]=='_'? '' : '_')+middle+"?", caller) if attr_sym
+											attr_sym = attr_key
+											value = v
+										end
+									end
 								end
+								return (nil) unless attr_sym
+								attr = attr_sym.to_s
+								middle.sub!(Regexp.new(value.to_s+"$"), "")
 							end
+						
 							unless value #check for nil?
 								return (nil) unless middle.sub!(Regexp.new('nil$'), "")
 								value = nil
@@ -139,9 +154,10 @@ module EnumeratedAttribute
 					
 						def define_enumerated_attribute_dynamic_method(methId)
 							meth_name = methId.id2name
-							return(false) unless (parts = parse_dynamic_method_parts(meth_name))
+							parts = parse_dynamic_method_parts!(meth_name)
+							return(false) unless parts
 							
-							negated = !!parts[1].downcase.match(/_not_/)
+							negated = !!parts[1].downcase.match(/(^|_)not_/)
 							value = parts[2] ? parts[2].to_sym : nil
 							self.class.define_enumerated_attribute_custom_method(methId, parts[0], value, negated)
 							
