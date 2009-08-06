@@ -5,7 +5,13 @@ shared_examples_for "enum_select form" do
 		visit form_page
 		select_option('', /gender/)
 		select_option('', /status/)
-		select_option('', /degree/)
+		select_option('None', /degree/)
+	end
+	it "should verify all options for each enumeration" do
+		visit form_page
+		%w(Male Female).each {|e| select e, :from=>/gender/}
+		%w(Single Married Widowed Divorced).each {|e| select e, :from=>/status/}
+		["None", "High school", "College", "Graduate"].each {|e| select e, :from=>/degree/}
 	end
 	it "should submit and keep values when form is invalid" do
 		visit form_page

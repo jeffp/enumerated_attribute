@@ -1,5 +1,5 @@
 
-begin
+if defined?(ActiveRecord)
 	module ActiveRecord
 		module ConnectionAdapters
 			class TableDefinition
@@ -17,8 +17,9 @@ begin
 			end
 		end
 	end
+end
 
-
+if defined?(ActionView::Base)
 	module ActionView
 		module Helpers
 		
@@ -67,7 +68,6 @@ begin
 			
 		end
 	end
-rescue
 end
 
 

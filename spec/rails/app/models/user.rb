@@ -5,5 +5,5 @@ class User < ActiveRecord::Base
   
   enum_attr :gender, %w(male female)
   enum_attr :status, %w(single married divorced widowed)
-  enum_attr :degree, %w(none high_school college graduate)
+  enum_attr :degree, %w(^none high_school college graduate)
 end

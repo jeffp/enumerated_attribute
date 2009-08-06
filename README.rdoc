@@ -1,6 +1,8 @@
 = enumerated_attribute
 
-+enumerated_attribute+ simplifies the definition of enumeration-based attributes, their accessors, initializers and common predicate and enumeration methods.
+Easily code enumerations for your models and expose them as  
+drop-down lists with the +enum_select+ helper, or use any of +enumerated_attribute+ 
+features to simplify coding enumerations in any Ruby object.
 
 == Resources
 
@@ -21,8 +23,7 @@ Install
 Enumerations are a common and useful pattern in programming.  Typically, in Ruby, 
 enumerated attributes are implemented with strings, symbols or constants.  Often the 
 developer is burdened with repeatedly defining common methods in support of each
-attribute.  Such repetition coding unnecessarily increases
-costs and wastes time.
+attribute.  Such repetition coding unnecessarily increases costs and wastes time.
 
 +enumerated_attribute+ simplifies the definition of enumerated attributes by emphasizing 
 convention and DRYing the implementation.  Repetitive code such as initializers, accessors, 
@@ -30,16 +31,64 @@ predicate and enumeration methods are automatically generated, resulting in bett
 encapsulation, quicker implementation and cleaner code.
 
 Features include:
-* Short and simple definition
+* ActiveRecord integration
+* ActionView form helpers
+* Configurable enumeration labels
 * Auto-defined attribute methods
 * Dynamically-generated predicate methods
-* Attribute initialization
-* Method definition short-hand (DSL)
-* ActiveRecord integration
+* Automatic initialization
+* Advanced configuration DSL
 
-== Example
+== Setup
 
-Here's a quick example of what +enumerated_attribute+ can do:
+For a Ruby application, install the gem and require it 
+
+  require 'enumerated_attribute'
+
+or for a rails application configure the gem in the config block of the
+config/environment.rb file
+
+  config.gem "jeffp-enumerated_attribute", :lib=>"enumerated_attribute"
+
+and run the gem install rake task
+
+  rake gems:install
+
+
+== Rails Example
+
+Here's an example of +enumerated_attribute+ features in a Rails application:
+
+In the migration, declare your enumeration attributes with +enum+
+
+  create_table :users, :force=>true do |t|
+    t.string :first_name
+    t.enum :gender
+    t.enum :degree
+    ...
+  end
+
+Define the enumerations in your models with +enum_attr+
+
+  class User < ActiveRecord::Base
+    enum_attr :gender, %w(male female)
+    enum_attr :degree, %w(^none high_school college graduate)
+  end
+
+Expose the enumeration in your forms with +enum_select+
+
+  <% form_for :user do |f| %>
+    <%= f.label :user %> <%= f.text_field :first_name %><br/>
+    <%= f.label :gender %> <%= f.enum_select :gender %><br/>
+    <%= f.label :degree %> <%= f.enum_select :degree %><br/>
+    <%= submit_tag 'save' %>
+  <% end %>
+
+The select options text can be customized.  See 'Customizing Labels' in the Integration section.
+
+== Ruby Example
+
+Here's an example of +enumerated_attribute+ features in a Ruby application:
 
   require 'enumerated_attribute'
   
@@ -205,22 +254,25 @@ Alternatively, the :init option can be used to indicate the initial value of the
 
 ==== Setting Attributes to nil
 
-By default, the attribute setter does not allow nils unless the :nil option is set to true
-in the definition as demonstrated here:
+By default, the attribute setter allows nils unless the :nil option is set to false.
+When :nil is set to false, the attribute may initialize to nil, but may not be set
+to nil thereafter.
 
   class Tractor 
-    enum_attr :plow, %w(^up down), :nil=>true
+    enum_attr :plow, %w(up down), :nil=>false
   end
   
   t = Tractor.new
-  t.plow                            # => :up
-  t.plow_nil?                       # => :false
-  t.plow = nil                      # => nil
-  t.plow_is_nil?                    # => true
-  t.plow_is_not_nil?                # => false
+  t.plow                            # => nil
+  t.plow_nil?                       # => true
+  t.plow = :up                      # => :up
+  t.plow_is_nil?                    # => false
+  t.plow_is_not_nil?                # => true
+  t.plow = nil                      # => raises error
   
 Regardless of the :nil option setting, the plugin can dynamically recognize and define
-predicate methods for testing 'nil' values.
+predicate methods for testing 'nil' values.  The setter methods also treat empty
+strings (or '') as nil values.
 
 
 ==== Changing Method Names
@@ -359,6 +411,62 @@ enumeration functionality is consistent across integrations.
   o.invoice                         # => "43556334-W84"
 	
 
+==== Labels
+
+Each enumeration value has a corresponding text label.  The defaults are made 
+up from the enumeration symbols.  For the Tractor class example:
+
+  t=Tractor.new
+  t.enums(:gear)                    # => [:reverse, :neutral, :first, :second, :over_drive]
+  t.enums(:gear).labels             # => ['Reverse', 'Neutral', 'First', 'Second', 'Over drive']
+
+The +enums(:attribute)+ method provides information about the attribute's enumerations. 
+It is the same as the plural form of the attribute name.  There are several kinds
+of information available from the +enums+ method.
+
+  t=Tractor.new
+  e = t.enums(:plow)                # => [:up, :down]
+  e.labels                          # => ['Up', 'Down']
+  e.hash                            # => {:up=>'Up', :down=>'Down'}
+  e.select_options                  # => [['Up', 'up'], ['Down', 'down']]
+  e.label(:up)                      # => 'Up'
+  
+==== Customizing Labels
+
+Labels can be customized as shown here:
+
+  class User < ActiveRecord::Base
+    enum_attr :contact_options, %w(none phone email mail) do
+      label :none=>'Please do not contact me'
+      label :phone=>'I would like a representative to call me'
+      label :email=>'I would like information via email'
+      label :mail=>'I would like information mailed to me'
+    end
+  end
+
+Likewise, the labels can be provided on the same line
+
+  class Tractor
+    enum_attr :gear, %w(reverse ^neutral first second over_drive) do
+      labels :first=>'1st Gear', :second=>'2nd Gear', :over_drive=>'Over Drive'
+    end
+  end
+
+==== View Helpers
+
+There are two +enum_select+ helpers, one for use with +form_for+ and one for use without
+it.  An example for form_for was given in the examples at the beginning.  Here's an
+example with the +form_tag+ and a @user object.
+
+  <% form_tag :action=>:register do %>
+    <%= label_tag 'First name' %>: <%= text_field :user, :first_name %><br/>
+    <%= label_tag 'Gender' %>: <%= enum_select :user, :gender %><br/>
+    <%= label_tag 'Degree' %>: <%= enum_select :user, :degree %><br/>
+    ...
+    <%= submit_tag 'Register' %>
+  <% end %>
+
+
 === Implementation Notes
 
 ==== New and Method_missing methods
@@ -384,18 +492,22 @@ overwriting the plugin's methods.  The best approach is shown here:
 
 == Testing
 
-The plugin uses RSpec for testing.  Make sure you have the RSpec gem installed:
+The plugin uses RSpec and Webrat for testing.  Make sure you have the RSpec gem installed:
 
-  gem install rspec
+  gem install rspec webrat
   
 To test the plugin for regular ruby objects, run:
 
-  rake spec
+  rake spec:object
 	
 Testing ActiveRecord integration requires the install of Sqlite3 and the 
 sqlite3-ruby gem.  To test ActiveRecord, run:
 
   rake spec:active_record
+
+And for testing +enum_select+ in form views:
+
+  rake spec:forms
 	
 To test all specs:
 
@@ -404,5 +516,5 @@ To test all specs:
 
 == Dependencies
 
-* ActiveRecord
+* ActiveRecord (but not required)
 * Sqlite3 and sqlite3-ruby gem (for testing)
