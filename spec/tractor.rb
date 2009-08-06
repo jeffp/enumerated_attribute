@@ -37,6 +37,9 @@ class Tractor
     enums_accessor :side_light_enums
     incrementor :side_light_up
     decrementor :side_light_down    
+		label :off=>'OFF'
+		labels :low => 'LOW DIM', :high => 'HIGH BEAM'
+		labels :super_high => 'SUPER BEAM'
   end
   
   #enum_attr_reader :temperature, %w(low med high)

@@ -1,9 +1,48 @@
 require 'test_in_memory'
-require 'enumerated_attribute'
 require 'active_record'
+require 'enumerated_attribute'
 require 'race_car'
 
 describe "RaceCar" do
+
+	it "should have default labels for :gear attribute" do
+		labels_hash = {:reverse=>'Reverse', :neutral=>'Neutral', :first=>'First', :second=>'Second', :over_drive=>'Over drive'}
+		labels = ['Reverse', 'Neutral', 'First', 'Second', 'Over drive']
+		select_options = [['Reverse', 'reverse'], ['Neutral', 'neutral'], ['First', 'first'], ['Second', 'second'], ['Over drive', 'over_drive']]
+		r=RaceCar.new
+		r.gears.labels.should == labels
+		labels_hash.each do |k,v|
+			r.gears.label(k).should == v
+		end
+		r.gears.hash.should == labels_hash
+		r.gears.select_options.should == select_options
+	end
+	
+	it "should retrieve :gear enums through enums method" do
+		r=RaceCar.new
+		r.enums(:gear).should == r.gears
+	end
+
+	it "should return a Symbol type from reader methods" do
+		r=RaceCar.new
+		r.gear.should be_an_instance_of(Symbol)
+	end
+	
+	it "should increment and decrement :gear attribute correctly" do
+		r=RaceCar.new
+		r.gear = :neutral
+		r.gear_next.should == :first
+		r.gear_next.should == :second
+		r.gear_next.should == :over_drive
+		r.gear_next.should == :reverse
+		r.gear_next.should == :neutral
+		r.gear.should == :neutral
+		r.gear_previous.should == :reverse
+		r.gear_previous.should == :over_drive
+		r.gear_previous.should == :second
+		r.gear_previous
+		r.gear.should == :first
+	end
 	
 	it "should have dynamic predicate methods for :gear attribute" do
 		r=RaceCar.new
@@ -55,12 +94,20 @@ describe "RaceCar" do
 		r.choke.should == :medium
 	end
 	
-	it "should initialize using parameter hash" do
+	it "should initialize using parameter hash with symbol keys" do
 		r=RaceCar.new(:name=>'FastFurious', :gear=>:second, :lights=>'on', :choke=>:medium)
 		r.gear.should == :second
 		r.lights.should == 'on'
 		r.choke.should == :medium
 	end
+	
+	it "should initialize using parameter hash with string keys" do
+		r=RaceCar.new({'name'=>'FastFurious', 'gear'=>'second', 'lights'=>'on', 'choke'=>'medium'})
+		r.gear.should == :second
+		r.lights.should == 'on'
+		r.choke.should == :medium
+	end
+	
 	
 	it "should convert non-column enumerated attributes from string to symbols" do
 		r=RaceCar.new

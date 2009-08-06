@@ -12,6 +12,10 @@ Source
 
 * git://github.com/jeffp/enumerated_attribute.git
 
+Install
+
+* sudo gem install jeffp-enumerated_attribute --source=http://gems.github.com
+	
 == Description
 
 Enumerations are a common and useful pattern in programming.  Typically, in Ruby, 
@@ -364,7 +368,7 @@ implementations in the same class declaring an enumerated_attribute should come 
 declaration; otherwise, the 'new' and 'method_missing' implementations must chain in order to avoid 
 overwriting the plugin's methods.  The best approach is shown here:
 
-  class A
+  class Soup
     def self.new(*args)
       ...
     end
@@ -374,7 +378,7 @@ overwriting the plugin's methods.  The best approach is shown here:
       ...
     end
 		
-    enum_attr :state, %w(cold warm hot boiling)
+    enum_attr temp:, %w(cold warm hot boiling)
   end
 
 

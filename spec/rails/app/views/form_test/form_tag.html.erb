@@ -1,0 +1,9 @@
+<% form_tag :action=>:form_tag do %>
+  <%= label_tag 'First name' %>: <%= text_field :user, :first_name %><br/>
+  <%= label_tag 'Gender' %>: <%= enum_select :user, :gender %><br/>
+  <%= label_tag 'Age' %>: <%= text_field :user, :age %><br/>
+  <%= label_tag 'DOB' %>: <%= date_select(:user, :DOB) %><br/>
+  <%= label_tag 'Degree' %>: <%= enum_select :user, :degree %><br/>
+  <%= label_tag 'Status' %>: <%= enum_select :user, :status %><br/>
+  <%= submit_tag 'Save' %>
+<% end %>

@@ -1,0 +1,10 @@
+<% form_for :user do |f| %>
+  <%= content_tag('div', f.error_messages) if f.error_messages %>
+  <%= f.label :first_name%>: <%= f.text_field :first_name %><br/>
+  <%= f.label :age %>: <%= f.text_field :age %><br/>
+  <%= f.label :gender %>: <%= f.enum_select :gender %><br/>
+  <%= f.label :DOB %>: <%= date_select(:user, :DOB) %><br/>
+  <%= f.label :degree %>: <%= f.enum_select :degree %><br/>
+  <%= f.label :status %>: <%= f.enum_select :status %><br/>
+  <%= submit_tag 'Save' %>
+<% end %>

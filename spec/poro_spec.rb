@@ -26,6 +26,38 @@ describe "Plural" do
 end
 
 describe "Tractor" do
+
+	it "should have default labels for :gear attribute" do
+		labels_hash = {:reverse=>'Reverse', :neutral=>'Neutral', :first=>'First', :second=>'Second', :over_drive=>'Over drive'}
+		labels = ['Reverse', 'Neutral', 'First', 'Second', 'Over drive']
+		select_options = [['Reverse', 'reverse'], ['Neutral', 'neutral'], ['First', 'first'], ['Second', 'second'], ['Over drive', 'over_drive']]
+		t=Tractor.new
+		t.gears.labels.should == labels
+		labels_hash.each do |k,v|
+			t.gears.label(k).should == v
+		end
+		t.gears.hash.should == labels_hash
+		t.gears.select_options.should == select_options
+	end
+	
+	it "should retrieve :gear enums through enums method" do
+		t=Tractor.new
+		t.enums(:gear).should == t.gears
+	end
+	
+	it "should retrieve custom labels for :side_light attribute" do
+		labels_hash = {:off=>'OFF', :low=>'LOW DIM', :high=>'HIGH BEAM', :super_high=>'SUPER BEAM'}
+		t=Tractor.new
+		enum = t.enums(:side_light)
+		t.enums(:side_light).hash.each do |k,v|
+			enum.label(k).should == labels_hash[k]
+		end
+	end
+	
+	it "should return a Symbol type from reader methods" do
+		t=Tractor.new
+		t.gear.should be_an_instance_of(Symbol)
+	end	
 	
 	it "should not raise errors for dynamic predicate methods missing attribute name" do
 		t=Tractor.new
@@ -323,10 +355,6 @@ describe "Tractor" do
     t.gear.should == :reverse
   end
     
-  it "should have class variable @@enumerated_attribute_names" do
-    Tractor.class_variable_defined?('@@enumerated_attribute_names').should be_true
-  end
-  
   it "should have instance method gears equal to enumeration array" do
     Tractor.new.gears.should == Tractor::GEAR_ENUM_VALUES
   end

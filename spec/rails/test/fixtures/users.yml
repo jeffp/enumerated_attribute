@@ -1,0 +1,17 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  name: MyString
+  age: 1
+  gender: MyString
+  DOB: 2009-08-04
+  degree: MyString
+  status: MyString
+
+two:
+  name: MyString
+  age: 1
+  gender: MyString
+  DOB: 2009-08-04
+  degree: MyString
+  status: MyString

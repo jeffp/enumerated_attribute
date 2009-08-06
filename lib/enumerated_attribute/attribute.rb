@@ -1,5 +1,8 @@
+require 'enumerated_attribute/attribute/attribute_descriptor'
 require 'enumerated_attribute/method_definition_dsl'
 require 'enumerated_attribute/integrations'
+require 'enumerated_attribute/rails_helpers'
+
 
 module EnumeratedAttribute
 
@@ -24,7 +27,7 @@ module EnumeratedAttribute
 
 				initial_value = nil
 				plural_name = opts[:plural] || opts[:enums_accessor] || opts[:enums] || begin 
-					case
+				case
 					when attr_name =~ /[aeiou]y$/
 						"#{attr_name}s"
 					when attr_name =~ /y$/
@@ -38,15 +41,13 @@ module EnumeratedAttribute
 				incrementor = opts[:incrementor] || opts[:inc] || "#{attr_name}_next"
 				decrementor = opts[:decrementor] || opts[:dec] || "#{attr_name}_previous"
 
-				enums = enums.map{|v| (v =~ /^\^/ ? (initial_value = v[1, v.length-1].to_sym) : v.to_sym )}
-
+				enums = enums.map{|v| (v =~ /^\^/ ? (initial_value ||= v[1, v.length-1].to_sym) : v.to_sym )}
+				
 				class_eval <<-ATTRIB
-					@@enumerated_attribute_names ||= []
-					@@enumerated_attribute_names << '#{attr_name}'
-					@@enumerated_attribute_options ||={}
-					@@enumerated_attribute_options[:#{attr_name}] = {#{opts.to_a.map{|v| ':'+v.first.to_s+'=>:'+v.last.to_s}.join(', ')}}
-					@@enumerated_attribute_values ||= {}
-					@@enumerated_attribute_values[:#{attr_name}] = [:#{enums.join(',:')}]
+					def self.enumerated_attributes; @@enumerated_attributes; end
+					def enums(attr); @@enumerated_attributes[attr.to_sym]; end
+					@@enumerated_attributes ||= {}
+					@@enumerated_attributes[:#{attr_name}] = AttributeDescriptor.new(:#{attr_name}, #{enums.inspect}, #{opts.inspect})
 				ATTRIB
 				
 				#define_enumerated_attribute_[writer, reader] may be modified in a named Integrations module (see Integrations::ActiveRecord)
@@ -60,16 +61,17 @@ module EnumeratedAttribute
 						include(@integration_map[:module]) if @integration_map[:module]
 						
 						def self.has_enumerated_attribute?(name)
-							@@enumerated_attribute_names.include?(name.to_s)
+							return(false) if name.nil?
+							@@enumerated_attributes.key?(name.to_sym)
 						end
 						def self.enumerated_attribute_allows_nil?(name)
-							return (false) unless @@enumerated_attribute_options[name.to_sym]
-							@@enumerated_attribute_options[name.to_sym][:nil] || false
+							return(false) unless (descriptor = @@enumerated_attributes[name.to_sym])
+							descriptor.allows_nil?
 						end
 						def self.enumerated_attribute_allows_value?(name, value)
-							return (false) unless @@enumerated_attribute_values[name.to_sym]
-							return enumerated_attribute_allows_nil?(name) if value == nil
-							@@enumerated_attribute_values[name.to_sym].include?(value.to_sym)
+							return (false) unless (descriptor = @@enumerated_attributes[name.to_sym])
+							return descriptor.allows_nil? if (value == nil || value == '')
+							descriptor.allows_value?(value)
 						end
 					end
 				MAP
@@ -114,7 +116,7 @@ module EnumeratedAttribute
 							middle = meth_name.chop #remove the ?
 							
 							attr = nil
-							@@enumerated_attribute_names.each do |name|
+							@@enumerated_attributes.keys.each do |name|
 								if middle.sub!(Regexp.new("^"+name.to_s), "")
 									attr = name; break
 								end
@@ -122,16 +124,16 @@ module EnumeratedAttribute
 							
 							value = nil
 							attr_sym = attr ? attr.to_sym : nil
-							if (enum_values = @@enumerated_attribute_values[attr_sym] )	#nil if [nil]
-								enum_values.each do |v|
+							if (descriptor = @@enumerated_attributes[attr_sym])
+								descriptor.enums.each do |v|
 									if middle.sub!(Regexp.new(v.to_s+"$"), "")
 										value = v; break
 									end
 								end	
 							else
 								#search through enum values one at time and identify any ambiguities
-								@@enumerated_attribute_values.each do |attr_key,enums|
-									enums.each do|v|
+								@@enumerated_attributes.each do |attr_key,descriptor|
+									descriptor.enums.each do|v|
 										if middle.match(v.to_s+"$")
 											raise(AmbiguousMethod, meth_name+" is ambiguous, use something like "+attr_sym.to_s+(middle[0,1]=='_'? '' : '_')+middle+"? or "+attr_key.to_s+(middle[0,1]=='_'? '' : '_')+middle+"?", caller) if attr_sym
 											attr_sym = attr_key
@@ -170,7 +172,7 @@ module EnumeratedAttribute
 				#create state and action methods from block
 				initial_value = opts[:init] || initial_value  
 				if block_given?
-					m = EnumeratedAttribute::MethodDefinitionDSL.new(self, attr_name, enums)
+					m = EnumeratedAttribute::MethodDefinitionDSL.new(self, enumerated_attributes[attr_sym]) #attr_name, enums)
 					m.instance_eval(&block)
 					initial_value = m.initial_value || initial_value
 					plural_name = m.pluralized_name || plural_name
@@ -181,16 +183,16 @@ module EnumeratedAttribute
 				#define the enum values accessor
 				class_eval <<-ENUM
 					def #{plural_name}
-						@@enumerated_attribute_values[:#{attr_name}]
+						@@enumerated_attributes[:#{attr_name}]
 					end
 					def #{incrementor}
-						z = @@enumerated_attribute_values[:#{attr_name}]
-						index = z.index(@#{attr_name})
+						z = @@enumerated_attributes[:#{attr_name}].enums
+						index = z.index(read_enumerated_attribute(:#{attr_name}))
 						write_enumerated_attribute(:#{attr_name}, z[index >= z.size-1 ? 0 : index+1])
 					end
 					def #{decrementor}
-						z = @@enumerated_attribute_values[:#{attr_name}]
-						index = z.index(@#{attr_name})
+						z = @@enumerated_attributes[:#{attr_name}].enums
+						index = z.index(read_enumerated_attribute(:#{attr_name}))
 						write_enumerated_attribute(:#{attr_name}, z[index > 0 ? index-1 : z.size-1])
 					end
 				ENUM

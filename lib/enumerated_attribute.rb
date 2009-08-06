@@ -20,4 +20,3 @@ Class.class_eval do
   include EnumeratedAttribute::MacroMethods
 end
 
-

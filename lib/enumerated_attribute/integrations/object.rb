@@ -8,6 +8,7 @@ module EnumeratedAttribute
 
 			def write_enumerated_attribute(name, val)
 				name = name.to_s
+				val = nil if val == ''
 				val = val.to_sym if val
 				unless self.class.enumerated_attribute_allows_value?(name, val)
 					raise(InvalidEnumeration, "nil is not allowed on '#{name}' attribute, set :nil=>true option", caller) unless val
@@ -17,7 +18,7 @@ module EnumeratedAttribute
 			end
 			
 			def read_enumerated_attribute(name)
-				return instance_variable_get('@'+name.to_s)
+				instance_variable_get('@'+name.to_s)
 			end
 
 			module ClassMethods

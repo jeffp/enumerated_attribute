@@ -15,10 +15,10 @@ module EnumeratedAttribute
   class MethodDefinitionDSL
     attr_reader :initial_value, :pluralized_name, :decrementor_name, :incrementor_name
     
-    def initialize(class_obj, attr_name, values=[])
+    def initialize(class_obj, descriptor)
       @class_obj = class_obj
-      @attr_name = attr_name
-      @attr_values = values      
+      @attr_name = descriptor.name
+      @attr_descriptor = descriptor #this is the enums array
     end
     
     #we'll by pass this - they can use it if it helps make code more readable - not enforced - should it be??
@@ -60,7 +60,7 @@ module EnumeratedAttribute
     end              
      
     def init(value)
-      if (!@attr_values.empty? && !@attr_values.include?(value.to_sym))
+      if (!@attr_descriptor.empty? && !@attr_descriptor.include?(value.to_sym))
         raise(InvalidDefinition, "'#{value}' in method 'init' is not an enumeration value for :#{@attr_name} attribute", caller) 
       end
       @initial_value = value
@@ -69,10 +69,20 @@ module EnumeratedAttribute
     def decrementor(value); @decrementor_name = value; end
     def incrementor(value); @incrementor_name = value; end    
     def enums_accessor(value); @pluralized_name = value; end
-    alias :inc :incrementor
-    alias :dec :decrementor
-    alias :enums :enums_accessor
-    alias :plural :enums_accessor
+    alias_method :inc, :incrementor
+    alias_method :dec, :decrementor
+    alias_method :enums, :enums_accessor
+    alias_method :plural, :enums_accessor
+		
+		def label(hash)
+			raise(InvalidDefinition, "label or labels keyword should be followed by a hash of :enum_value=>'label'", caller) unless hash.is_a?(Hash)
+			hash.each do |k,v|
+				raise(InvalidDefinition, "#{k} is not an enumeration value for :#{@attr_name} attribute", caller) unless (k.is_a?(Symbol) && @attr_descriptor.include?(k))
+				raise(InvalidDefinition, "#{v} is not a string. Labels should be strings", caller) unless v.is_a?(String)
+				@attr_descriptor.set_label(k, v)
+			end
+		end
+		alias_method :labels, :label
     
     private
     
@@ -111,16 +121,16 @@ module EnumeratedAttribute
     end
     
     def create_custom_method_for_symbol_or_string(mdef)
-      if (!@attr_values.empty? && !@attr_values.include?(mdef.argument.to_sym))
+      if (!@attr_descriptor.empty? && !@attr_descriptor.include?(mdef.argument.to_sym))
         raise(InvalidDefinition, "'#{mdef.argument}' in method '#{mdef.method_name}' is not an enumeration value for :#{@attr_name} attribute", caller) 
       end
       @class_obj.class_eval("def #{mdef.method_name}; @#{@attr_name} #{mdef.negated ? '!=' : '=='} :#{mdef.argument}; end") 
     end
 
     def create_custom_method_for_array_of_enums(mdef)
-      if !@attr_values.empty?
+      if !@attr_descriptor.empty?
         mdef.argument.each do |m|
-          if !@attr_values.include?(m.to_sym)
+          if !@attr_descriptor.include?(m.to_sym)
             raise(InvalidDefinition, "'#{m}' in method '#{mdef.method_name}' is not an enumeration value for :#{@attr_name} attribute", caller) 
           end
         end

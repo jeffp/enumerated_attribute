@@ -9,6 +9,7 @@ module EnumeratedAttribute
 			def write_enumerated_attribute(name, val)
 				name = name.to_s
 				return write_attribute(name, val) unless self.class.has_enumerated_attribute?(name)
+				val = nil if val == ''
 				val_str = val.to_s if val
 				val_sym = val.to_sym if val
 				unless self.class.enumerated_attribute_allows_value?(name, val_sym)
@@ -17,6 +18,7 @@ module EnumeratedAttribute
 				end
 				return instance_variable_set('@'+name, val_sym) unless self.has_attribute?(name)
 				write_attribute(name, val_str)
+				val_sym
 			end
 			
 			def read_enumerated_attribute(name)
@@ -24,10 +26,11 @@ module EnumeratedAttribute
 				#if not enumerated - let active record handle it
 				return read_attribute(name) unless self.class.has_enumerated_attribute?(name)
 				#if enumerated, is it an active record attribute, if not, the value is stored in an instance variable
+				name_sym = name.to_sym
 				return instance_variable_get('@'+name) unless self.has_attribute?(name)
 				#this is an enumerated active record attribute
 				val = read_attribute(name)
-				val = val.to_sym if (!!val && self.class.has_enumerated_attribute?(name))
+				val = val.to_sym if !!val
 				val
 			end
 			
@@ -48,7 +51,7 @@ module EnumeratedAttribute
 			
 			def attributes
 				super.map do |k,v|
-					self.class.has_enumerated_attribute?(k) ? v.to_sym : v
+					self.class.has_enumerated_attribute?(k) ? @@enumerated_attributes[k].cast_enum_symbol(v) : v
 				end
 			end
 			
@@ -66,7 +69,7 @@ module EnumeratedAttribute
 					attributes = super
 					attributes.each { |k,v| attributes[k] = v.to_s if has_enumerated_attribute?(k) }
 					attributes
-				end			
+				end
 				
 				def instantiate(record)
 					object = super(record)

@@ -28,7 +28,7 @@ Spec::Rake::SpecTask.new(:spec) do |t|
 	t.spec_files = FileList['spec/*_spec.rb']
 	t.libs << 'lib' << 'spec'
 	t.rcov = false
-	#t.spec_opts = ['--options', 'spec/spec.opts']
+	t.spec_opts = ['--options', 'spec/spec.opts']
 	#t.rcov_dir = 'coverage'
 	#t.rcov_opts = ['--exclude', "kernel,load-diff-lcs\.rb,instance_exec\.rb,lib/spec.rb,lib/spec/runner.rb,^spec/*,bin/spec,examples,/gems,/Library/Ruby,\.autotest,#{ENV['GEM_HOME']}"]
 end
@@ -38,8 +38,14 @@ namespace :spec do
 	Spec::Rake::SpecTask.new(:active_record) do |t|
 		t.spec_files = FileList['spec/active_record/*_spec.rb']
 		t.libs << 'lib' << 'spec/active_record'
+                t.spec_opts = ['--options', 'spec/spec.opts']    
 		t.rcov = false
 	end
+#	Spec::Rake::SpecTask.new(:associations) do |t|
+#		t.spec_files = FileList['spec/active_record/associations_spec.rb']
+#		t.libs << 'lib' << 'spec/active_record'
+#		t.rcov = false
+#	end
 	desc "Run all specs"
 	task :all=>[:spec, :active_record] 
 end
@@ -63,7 +69,7 @@ end
  
 Rake::GemPackageTask.new(spec) do |p|
   p.gem_spec = spec
-  p.need_tar = true
+  p.need_tar = RUBY_PLATFORM =~ /mswin/ ? false : true
   p.need_zip = true
 end
 
