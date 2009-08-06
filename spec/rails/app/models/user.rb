@@ -1,3 +1,4 @@
+require 'enumerated_attribute'
 class User < ActiveRecord::Base
   validates_presence_of :first_name, :gender, :age, :status, :degree
   validates_numericality_of :age

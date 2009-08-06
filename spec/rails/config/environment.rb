@@ -41,5 +41,5 @@ Rails::Initializer.run do |config|
   # config.i18n.default_locale = :de
 end
 
-$:.unshift '../../lib'
+$:.unshift File.dirname(__FILE__)+'/../../../lib'
 require 'enumerated_attribute'

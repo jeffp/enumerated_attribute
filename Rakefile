@@ -24,21 +24,28 @@ require 'spec/version'
 require 'spec/rake/spectask'
 
 desc "Run specs"
-Spec::Rake::SpecTask.new(:spec) do |t|
-	t.spec_files = FileList['spec/*_spec.rb']
-	t.libs << 'lib' << 'spec'
-	t.rcov = false
-	t.spec_opts = ['--options', 'spec/spec.opts']
-	#t.rcov_dir = 'coverage'
-	#t.rcov_opts = ['--exclude', "kernel,load-diff-lcs\.rb,instance_exec\.rb,lib/spec.rb,lib/spec/runner.rb,^spec/*,bin/spec,examples,/gems,/Library/Ruby,\.autotest,#{ENV['GEM_HOME']}"]
-end
 
 namespace :spec do
+	task :default=>:object
+	Spec::Rake::SpecTask.new(:object) do |t|
+		t.spec_files = FileList['spec/*_spec.rb']
+		t.libs << 'lib' << 'spec'
+		t.rcov = false
+		t.spec_opts = ['--options', 'spec/spec.opts']
+		#t.rcov_dir = 'coverage'
+		#t.rcov_opts = ['--exclude', "kernel,load-diff-lcs\.rb,instance_exec\.rb,lib/spec.rb,lib/spec/runner.rb,^spec/*,bin/spec,examples,/gems,/Library/Ruby,\.autotest,#{ENV['GEM_HOME']}"]
+	end
   desc "Run ActiveRecord integration specs"
 	Spec::Rake::SpecTask.new(:active_record) do |t|
 		t.spec_files = FileList['spec/active_record/*_spec.rb']
 		t.libs << 'lib' << 'spec/active_record'
-                t.spec_opts = ['--options', 'spec/spec.opts']    
+		t.spec_opts = ['--options', 'spec/spec.opts']    
+		t.rcov = false
+	end
+	Spec::Rake::SpecTask.new(:forms) do |t|
+		t.spec_files = FileList['spec/rails/spec/integrations/*_spec.rb']
+		t.libs << 'lib' << 'spec/rails/spec'
+		t.spec_opts = ['--options', 'spec/spec.opts']    
 		t.rcov = false
 	end
 #	Spec::Rake::SpecTask.new(:associations) do |t|
@@ -47,7 +54,7 @@ namespace :spec do
 #		t.rcov = false
 #	end
 	desc "Run all specs"
-	task :all=>[:spec, :active_record] 
+	task :all=>[:object, :active_record, :forms] 
 end
 
 

@@ -12,7 +12,7 @@ module EnumeratedAttribute
 			end
 			
 			def allows_nil?
-				@options[:nil] || true
+				@options.key?(:nil) ? @options[:nil] : true
 			end
 			def allows_value?(value)
 				self.include?(value.to_sym)

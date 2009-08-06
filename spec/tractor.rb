@@ -12,7 +12,7 @@ class Tractor
     @name = 'old faithful'
   end
   
-  enumerated_attribute :gear, %w(reverse ^neutral first second over_drive) do
+  enumerated_attribute :gear, %w(reverse ^neutral first second over_drive), :nil=>false do
     parked? is :neutral 
     driving? is [:first, :second, :over_drive]
     not_parked? is_not :neutral
