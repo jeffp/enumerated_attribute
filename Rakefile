@@ -5,12 +5,12 @@ require 'rake/contrib/sshpublisher'
 
 spec = Gem::Specification.new do |s|
   s.name = 'enumerated_attribute'
-  s.version = '0.2.0.1'
+  s.version = '0.2.0.2'
   s.platform = Gem::Platform::RUBY
   s.description = 'Enumerated model attributes and view helpers'
   s.summary = 'Add enumerated attributes to your models and expose them in drop-down lists in your views'
   
-  exclude_folders = 'spec/rails/{doc,lib,log,nbproject,tmp,vendor}'
+  exclude_folders = 'spec/rails/{doc,lib,log,nbproject,tmp,vendor,test}'
   exclude_files = FileList['**/*.log'] + FileList[exclude_folders+'/**/*'] + FileList[exclude_folders]
   s.files = FileList['{examples,lib,tasks,spec}/**/*'] + %w(CHANGELOG.rdoc init.rb LICENSE Rakefile README.rdoc .gitignore) - exclude_files
   s.require_path = 'lib'
