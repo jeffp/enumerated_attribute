@@ -10,7 +10,8 @@ spec = Gem::Specification.new do |s|
   s.description = 'Enumerated model attributes and view helpers'
   s.summary = 'Add enumerated attributes to your models and expose them in drop-down lists in your views'
   
-  s.files = FileList['{examples,lib,tasks,spec}/**/*'] + %w(CHANGELOG.rdoc init.rb LICENSE Rakefile README.rdoc .gitignore) - FileList['**/*.log']
+  exclude_files = FileList['**/*.log'] + FileList['spec/rails/{doc,lib,log,nbproject,tmp,vendor}/**/*']
+  s.files = FileList['{examples,lib,tasks,spec}/**/*'] + %w(CHANGELOG.rdoc init.rb LICENSE Rakefile README.rdoc .gitignore) - exclude_files
   s.require_path = 'lib'
   s.has_rdoc = true
   s.test_files = Dir['spec/*_spec.rb']
