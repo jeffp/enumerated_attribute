@@ -1357,3 +1357,151 @@
   [4;35;1mRaceCar Create (0.0ms)[0m   [0mINSERT INTO "race_cars" ("name", "lights", "gear") VALUES(NULL, '--- :off
 ', 'neutral')[0m
   [4;36;1mRaceCar Load (0.0ms)[0m   [0;1mSELECT * FROM "race_cars" WHERE ("race_cars"."id" = 13) [0m
+  [4;36;1mSQL (0.0ms)[0m   [0;1mselect sqlite_version(*)[0m
+  [4;35;1mSQL (0.0ms)[0m   [0m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+  [4;36;1mSQL (0.0ms)[0m   [0;1mCREATE TABLE "race_cars" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "name" varchar(255), "gear" varchar(255), "lights" varchar(255)) [0m
+  [4;35;1mSQL (0.0ms)[0m   [0m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+  [4;36;1mSQL (0.0ms)[0m   [0;1mCREATE TABLE "bicycles" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "name" varchar(255), "speed" varchar(255), "gear" varchar(255)) [0m
+  [4;35;1mSQL (0.0ms)[0m   [0m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+  [4;36;1mSQL (0.0ms)[0m   [0;1mCREATE TABLE "companies" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "name" varchar(255), "status" varchar(255)) [0m
+  [4;35;1mSQL (0.0ms)[0m   [0m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+  [4;36;1mSQL (0.0ms)[0m   [0;1mCREATE TABLE "contract_workers" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "company_id" integer, "contractor_id" integer, "status" varchar(255)) [0m
+  [4;35;1mSQL (16.0ms)[0m   [0m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+  [4;36;1mSQL (0.0ms)[0m   [0;1mCREATE TABLE "licenses" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "company_id" integer, "status" varchar(255)) [0m
+  [4;35;1mSQL (0.0ms)[0m   [0m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+  [4;36;1mSQL (0.0ms)[0m   [0;1mCREATE TABLE "contractors" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "name" varchar(255), "status" varchar(255)) [0m
+  [4;35;1mSQL (0.0ms)[0m   [0m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+  [4;36;1mSQL (0.0ms)[0m   [0;1mCREATE TABLE "employees" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "company_id" integer, "name" varchar(255), "status" varchar(255)) [0m
+  [4;35;1mSQL (0.0ms)[0m   [0m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+  [4;36;1mSQL (0.0ms)[0m   [0;1mCREATE TABLE "comments" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "document_id" integer, "document_type" varchar(255), "comment" text, "status" varchar(255)) [0m
+  [4;35;1mSQL (0.0ms)[0m   [0m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+  [4;36;1mSQL (0.0ms)[0m   [0;1mCREATE TABLE "articles" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "name" varchar(255), "status" varchar(255)) [0m
+  [4;35;1mSQL (0.0ms)[0m   [0m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+  [4;36;1mSQL (0.0ms)[0m   [0;1mCREATE TABLE "images" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "name" varchar(255), "status" varchar(255)) [0m
+  [4;35;1mCompany Delete all (0.0ms)[0m   [0mDELETE FROM "companies" WHERE 1=1[0m
+  [4;36;1mEmployee Delete all (0.0ms)[0m   [0;1mDELETE FROM "employees" WHERE 1=1[0m
+  [4;35;1mEmployee Create (0.0ms)[0m   [0mINSERT INTO "employees" ("name", "status", "company_id") VALUES('juanita', 'part_time', NULL)[0m
+  [4;36;1mCompany Create (0.0ms)[0m   [0;1mINSERT INTO "companies" ("name", "status") VALUES('Company A', 'c_corp')[0m
+  [4;35;1mEmployee Update (0.0ms)[0m   [0mUPDATE "employees" SET "company_id" = 1 WHERE "id" = 1[0m
+  [4;36;1mEmployee Load (0.0ms)[0m   [0;1mSELECT * FROM "employees" WHERE ("employees"."id" = 1) [0m
+  [4;35;1mCompany Load (0.0ms)[0m   [0mSELECT * FROM "companies" WHERE ("companies"."id" = 1) [0m
+  [4;36;1mCompany Delete all (0.0ms)[0m   [0;1mDELETE FROM "companies" WHERE 1=1[0m
+  [4;35;1mContractor Delete all (0.0ms)[0m   [0mDELETE FROM "contractors" WHERE 1=1[0m
+  [4;36;1mContractWorker Delete all (0.0ms)[0m   [0;1mDELETE FROM "contract_workers" WHERE 1=1[0m
+  [4;35;1mContractor Create (0.0ms)[0m   [0mINSERT INTO "contractors" ("name", "status") VALUES('jack', 'available')[0m
+  [4;36;1mCompany Create (0.0ms)[0m   [0;1mINSERT INTO "companies" ("name", "status") VALUES('Company A', 's_corp')[0m
+  [4;35;1mCompany Create (0.0ms)[0m   [0mINSERT INTO "companies" ("name", "status") VALUES('other company', 'llc')[0m
+  [4;36;1mContractWorker Create (0.0ms)[0m   [0;1mINSERT INTO "contract_workers" ("status", "contractor_id", "company_id") VALUES('unfresh', 1, 2)[0m
+  [4;35;1mContractWorker Create (0.0ms)[0m   [0mINSERT INTO "contract_workers" ("status", "contractor_id", "company_id") VALUES('unfresh', 1, 3)[0m
+  [4;36;1mContractor Load (0.0ms)[0m   [0;1mSELECT * FROM "contractors" WHERE ("contractors"."id" = 1) [0m
+  [4;35;1mCompany Load (0.0ms)[0m   [0mSELECT "companies".* FROM "companies" INNER JOIN "contract_workers" ON "companies".id = "contract_workers".company_id WHERE ("companies"."name" = 'other company') AND (("contract_workers".contractor_id = 1)) LIMIT 1[0m
+  [4;36;1mCompany Load (0.0ms)[0m   [0;1mSELECT "companies".* FROM "companies" INNER JOIN "contract_workers" ON "companies".id = "contract_workers".company_id WHERE ("companies"."name" = 'Company A') AND (("contract_workers".contractor_id = 1)) LIMIT 1[0m
+  [4;35;1mCompany Delete all (0.0ms)[0m   [0mDELETE FROM "companies" WHERE 1=1[0m
+  [4;36;1mLicense Delete all (0.0ms)[0m   [0;1mDELETE FROM "licenses" WHERE 1=1[0m
+  [4;35;1mLicense Create (0.0ms)[0m   [0mINSERT INTO "licenses" ("status", "company_id") VALUES('expired', NULL)[0m
+  [4;36;1mCompany Create (0.0ms)[0m   [0;1mINSERT INTO "companies" ("name", "status") VALUES('Company A', 'llc')[0m
+  [4;35;1mLicense Update (0.0ms)[0m   [0mUPDATE "licenses" SET "company_id" = 4 WHERE "id" = 1[0m
+  [4;36;1mLicense Load (0.0ms)[0m   [0;1mSELECT * FROM "licenses" WHERE ("licenses"."id" = 1) [0m
+  [4;35;1mCompany Load (0.0ms)[0m   [0mSELECT * FROM "companies" WHERE ("companies"."id" = 4) [0m
+  [4;36;1mCompany Create (0.0ms)[0m   [0;1mINSERT INTO "companies" ("name", "status") VALUES('Company A', 'llc')[0m
+  [4;35;1mLicense Load (0.0ms)[0m   [0mSELECT * FROM "licenses" WHERE ("licenses".company_id = 5) LIMIT 1[0m
+  [4;36;1mLicense Create (0.0ms)[0m   [0;1mINSERT INTO "licenses" ("status", "company_id") VALUES('current', 5)[0m
+  [4;35;1mCompany Load (0.0ms)[0m   [0mSELECT * FROM "companies" WHERE ("companies"."id" = 5) [0m
+  [4;36;1mLicense Load (0.0ms)[0m   [0;1mSELECT * FROM "licenses" WHERE ("licenses".company_id = 5) LIMIT 1[0m
+  [4;35;1mCompany Create (0.0ms)[0m   [0mINSERT INTO "companies" ("name", "status") VALUES('Company A', 'llc')[0m
+  [4;36;1mEmployee Create (0.0ms)[0m   [0;1mINSERT INTO "employees" ("name", "status", "company_id") VALUES('edward', 'full_time', 6)[0m
+  [4;35;1mEmployee Create (0.0ms)[0m   [0mINSERT INTO "employees" ("name", "status", "company_id") VALUES('tina', 'suspended', 6)[0m
+  [4;36;1mCompany Load (0.0ms)[0m   [0;1mSELECT * FROM "companies" WHERE ("companies"."id" = 6) [0m
+  [4;35;1mEmployee Load (0.0ms)[0m   [0mSELECT * FROM "employees" WHERE ("employees"."name" = 'edward') AND ("employees".company_id = 6) LIMIT 1[0m
+  [4;36;1mEmployee Load (0.0ms)[0m   [0;1mSELECT * FROM "employees" WHERE ("employees"."name" = 'tina') AND ("employees".company_id = 6) LIMIT 1[0m
+  [4;35;1mEmployee Delete all (0.0ms)[0m   [0mDELETE FROM "employees" WHERE 1=1[0m
+  [4;36;1mCompany Create (0.0ms)[0m   [0;1mINSERT INTO "companies" ("name", "status") VALUES('Company A', 'llc')[0m
+  [4;35;1mContractor Create (0.0ms)[0m   [0mINSERT INTO "contractors" ("name", "status") VALUES('john', 'available')[0m
+  [4;36;1mContractWorker Create (0.0ms)[0m   [0;1mINSERT INTO "contract_workers" ("status", "contractor_id", "company_id") VALUES('unfresh', 2, 7)[0m
+  [4;35;1mContractor Create (0.0ms)[0m   [0mINSERT INTO "contractors" ("name", "status") VALUES('sally', 'unavailable')[0m
+  [4;36;1mContractWorker Create (0.0ms)[0m   [0;1mINSERT INTO "contract_workers" ("status", "contractor_id", "company_id") VALUES('unfresh', 3, 7)[0m
+  [4;35;1mCompany Load (0.0ms)[0m   [0mSELECT * FROM "companies" WHERE ("companies"."id" = 7) [0m
+  [4;36;1mContractor Load (0.0ms)[0m   [0;1mSELECT "contractors".* FROM "contractors" INNER JOIN "contract_workers" ON "contractors".id = "contract_workers".contractor_id WHERE ("contractors"."name" = 'sally') AND (("contract_workers".company_id = 7)) LIMIT 1[0m
+  [4;35;1mContractor Load (0.0ms)[0m   [0mSELECT "contractors".* FROM "contractors" INNER JOIN "contract_workers" ON "contractors".id = "contract_workers".contractor_id WHERE ("contractors"."name" = 'john') AND (("contract_workers".company_id = 7)) LIMIT 1[0m
+  [4;36;1mContractor Delete all (0.0ms)[0m   [0;1mDELETE FROM "contractors" WHERE 1=1[0m
+  [4;35;1mContractWorker Delete all (0.0ms)[0m   [0mDELETE FROM "contract_workers" WHERE 1=1[0m
+  [4;36;1mArticle Create (0.0ms)[0m   [0;1mINSERT INTO "articles" ("name", "status") VALUES('Birds of a Feather', 'accepted')[0m
+  [4;35;1mComment Create (0.0ms)[0m   [0mINSERT INTO "comments" ("status", "document_id", "document_type", "comment") VALUES('unflagged', 1, 'Article', 'i like it')[0m
+  [4;36;1mImage Create (0.0ms)[0m   [0;1mINSERT INTO "images" ("name", "status") VALUES('Martian Landscape', 'unreviewed')[0m
+  [4;35;1mComment Create (0.0ms)[0m   [0mINSERT INTO "comments" ("status", "document_id", "document_type", "comment") VALUES('flagged', 1, 'Image', 'i hate it')[0m
+  [4;36;1mComment Load (0.0ms)[0m   [0;1mSELECT * FROM "comments" WHERE ("comments"."id" = 1) [0m
+  [4;35;1mArticle Load (0.0ms)[0m   [0mSELECT * FROM "articles" WHERE ("articles"."id" = 1) [0m
+  [4;36;1mComment Load (0.0ms)[0m   [0;1mSELECT * FROM "comments" WHERE ("comments"."id" = 2) [0m
+  [4;35;1mImage Load (0.0ms)[0m   [0mSELECT * FROM "images" WHERE ("images"."id" = 1) [0m
+  [4;36;1mArticle Create (0.0ms)[0m   [0;1mINSERT INTO "articles" ("name", "status") VALUES('Swimming with Whales', 'accepted')[0m
+  [4;35;1mComment Load (0.0ms)[0m   [0mSELECT * FROM "comments" WHERE ("comments".document_id = 2 AND "comments".document_type = 'Article') LIMIT 1[0m
+  [4;36;1mComment Create (0.0ms)[0m   [0;1mINSERT INTO "comments" ("status", "document_id", "document_type", "comment") VALUES('unflagged', 2, 'Article', 'i like it')[0m
+  [4;35;1mImage Create (0.0ms)[0m   [0mINSERT INTO "images" ("name", "status") VALUES('Mountain Climbing', 'unreviewed')[0m
+  [4;36;1mComment Create (0.0ms)[0m   [0;1mINSERT INTO "comments" ("status", "document_id", "document_type", "comment") VALUES('flagged', NULL, NULL, 'i do not like it')[0m
+  [4;35;1mComment Load (0.0ms)[0m   [0mSELECT * FROM "comments" WHERE ("comments".document_id = 2 AND "comments".document_type = 'Image') LIMIT 1[0m
+  [4;36;1mComment Update (0.0ms)[0m   [0;1mUPDATE "comments" SET "document_type" = 'Image', "document_id" = 2 WHERE "id" = 4[0m
+  [4;35;1mImage Load (0.0ms)[0m   [0mSELECT * FROM "images" WHERE ("images"."id" = 2) [0m
+  [4;36;1mComment Load (0.0ms)[0m   [0;1mSELECT * FROM "comments" WHERE ("comments".document_id = 2 AND "comments".document_type = 'Image') LIMIT 1[0m
+  [4;35;1mArticle Load (15.0ms)[0m   [0mSELECT * FROM "articles" WHERE ("articles"."id" = 2) [0m
+  [4;36;1mComment Load (0.0ms)[0m   [0;1mSELECT * FROM "comments" WHERE ("comments".document_id = 2 AND "comments".document_type = 'Article') LIMIT 1[0m
+  [4;35;1mRaceCar Create (0.0ms)[0m   [0mINSERT INTO "race_cars" ("name", "lights", "gear") VALUES(NULL, NULL, 'second')[0m
+  [4;36;1mRaceCar Load (0.0ms)[0m   [0;1mSELECT * FROM "race_cars" WHERE ("race_cars"."id" = 1) [0m
+  [4;35;1mRaceCar Create (0.0ms)[0m   [0mINSERT INTO "race_cars" ("name", "lights", "gear") VALUES('special', NULL, 'second')[0m
+  [4;36;1mRaceCar Load (0.0ms)[0m   [0;1mSELECT * FROM "race_cars" WHERE ("race_cars"."gear" = 'second' AND "race_cars"."name" = 'special') LIMIT 1[0m
+  [4;35;1mRaceCar Create (0.0ms)[0m   [0mINSERT INTO "race_cars" ("name", "lights", "gear") VALUES(NULL, NULL, 'neutral')[0m
+  [4;36;1mRaceCar Create (0.0ms)[0m   [0;1mINSERT INTO "race_cars" ("name", "lights", "gear") VALUES(NULL, NULL, 'second')[0m
+  [4;35;1mRaceCar Load (0.0ms)[0m   [0mSELECT * FROM "race_cars" WHERE ("race_cars"."id" = 4) [0m
+  [4;36;1mRaceCar Create (0.0ms)[0m   [0;1mINSERT INTO "race_cars" ("name", "lights", "gear") VALUES(NULL, 'off', 'neutral')[0m
+  [4;35;1mRaceCar Load (0.0ms)[0m   [0mSELECT * FROM "race_cars" WHERE ("race_cars"."id" = 5) [0m
+  [4;36;1mRaceCar Create (0.0ms)[0m   [0;1mINSERT INTO "race_cars" ("name", "lights", "gear") VALUES(NULL, NULL, 'first')[0m
+  [4;35;1mRaceCar Update (0.0ms)[0m   [0mUPDATE "race_cars" SET "gear" = 'second' WHERE "id" = 6[0m
+  [4;36;1mRaceCar Load (0.0ms)[0m   [0;1mSELECT * FROM "race_cars" WHERE ("race_cars"."id" = 6) [0m
+  [4;35;1mRaceCar Create (0.0ms)[0m   [0mINSERT INTO "race_cars" ("name", "lights", "gear") VALUES(NULL, 'on', 'neutral')[0m
+  [4;36;1mRaceCar Update (0.0ms)[0m   [0;1mUPDATE "race_cars" SET "lights" = 'off' WHERE "id" = 7[0m
+  [4;35;1mRaceCar Load (0.0ms)[0m   [0mSELECT * FROM "race_cars" WHERE ("race_cars"."id" = 7) [0m
+  [4;36;1mRaceCar Create (0.0ms)[0m   [0;1mINSERT INTO "race_cars" ("name", "lights", "gear") VALUES(NULL, 'off', 'first')[0m
+  [4;35;1mRaceCar Update (0.0ms)[0m   [0mUPDATE "race_cars" SET "lights" = 'on', "gear" = 'second' WHERE "id" = 8[0m
+  [4;36;1mRaceCar Load (16.0ms)[0m   [0;1mSELECT * FROM "race_cars" WHERE ("race_cars"."id" = 8) [0m
+  [4;35;1mRaceCar Update (0.0ms)[0m   [0mUPDATE "race_cars" SET "lights" = 'off', "gear" = 'over_drive' WHERE "id" = 8[0m
+  [4;36;1mRaceCar Load (0.0ms)[0m   [0;1mSELECT * FROM "race_cars" WHERE ("race_cars"."id" = 8) [0m
+  [4;35;1mRaceCar Create (0.0ms)[0m   [0mINSERT INTO "race_cars" ("name", "lights", "gear") VALUES('Green Meanie', NULL, 'neutral')[0m
+  [4;36;1mRaceCar Load (0.0ms)[0m   [0;1mSELECT * FROM "race_cars" WHERE ("race_cars"."id" = 9) [0m
+  [4;35;1mRaceCar Create (0.0ms)[0m   [0mINSERT INTO "race_cars" ("name", "lights", "gear") VALUES(NULL, NULL, 'over_drive')[0m
+  [4;36;1mRaceCar Load (0.0ms)[0m   [0;1mSELECT * FROM "race_cars" WHERE ("race_cars"."id" = 10) [0m
+  [4;35;1mRaceCar Create (0.0ms)[0m   [0mINSERT INTO "race_cars" ("name", "lights", "gear") VALUES(NULL, NULL, 'neutral')[0m
+  [4;36;1mRaceCar Load (0.0ms)[0m   [0;1mSELECT * FROM "race_cars" WHERE ("race_cars"."id" = 11) [0m
+  [4;35;1mRaceCar Create (0.0ms)[0m   [0mINSERT INTO "race_cars" ("name", "lights", "gear") VALUES(NULL, 'on', 'neutral')[0m
+  [4;36;1mRaceCar Load (0.0ms)[0m   [0;1mSELECT * FROM "race_cars" WHERE ("race_cars"."id" = 12) [0m
+  [4;35;1mRaceCar Create (0.0ms)[0m   [0mINSERT INTO "race_cars" ("name", "lights", "gear") VALUES(NULL, '--- :off
+', 'neutral')[0m
+  [4;36;1mRaceCar Load (0.0ms)[0m   [0;1mSELECT * FROM "race_cars" WHERE ("race_cars"."id" = 13) [0m
