@@ -20,7 +20,8 @@ if defined?(ActiveRecord)
 end
 
 #ARGV is used by generators -- if it contains one of these generator commands - add enumeration support
-unless ((ARGV || []) & ["scaffold", "rspec_scaffold", "nifty_scaffold"]).empty?
+#unless ((ARGV || []) & ["scaffold", "rspec_scaffold", "nifty_scaffold"]).empty?
+if ((ARGV || []).any?{|o| o =~ /scaffold/ })
 	require 'rails_generator'
 	module Rails
 		module Generator

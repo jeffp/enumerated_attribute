@@ -86,7 +86,7 @@ Expose the enumeration in your forms with +enum_select+
   <% end %>
 
 or generate a scaffold with one of your favorite scaffold generators.  Currently
-support scaffold generators include: scaffold, nifty_scaffold, rspec_scaffold, and wizardly_scaffold.
+supports most scaffold generators including scaffold, wizardly_scaffold, nifty_scaffold, rspec_scaffold, and haml_scaffold.
 See the section 'Generating Scaffolds' below.
 
 The select options text can be customized.  See 'Customizing Labels' in the Integration section.
@@ -474,7 +474,7 @@ example with the +form_tag+ and a @user object.
 ==== Generating Scaffolds
 
 You can generate views with enumerations using your favorite scaffold generator.  Currently
-supported generators include: scaffold, nifty_scaffold, rspec_scaffold and wizardly_scaffold.
+supports most scaffold generators including scaffold, wizardly_scaffold, nifty_scaffold, rspec_scaffold and haml_scaffold.
 For most scaffolds there are two steps.  First, generate the scaffold views and 
 migrations using the 'enum' type for enumerations
 
