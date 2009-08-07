@@ -5,7 +5,7 @@ require 'rake/contrib/sshpublisher'
 
 spec = Gem::Specification.new do |s|
   s.name = 'enumerated_attribute'
-  s.version = '0.2.1'
+  s.version = '0.2.2'
   s.platform = Gem::Platform::RUBY
   s.description = 'Enumerated model attributes and view helpers'
   s.summary = 'Add enumerated attributes to your models and expose them in drop-down lists in your views'
