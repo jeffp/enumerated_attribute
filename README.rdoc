@@ -33,6 +33,7 @@ encapsulation, quicker implementation and cleaner code.
 Features include:
 * ActiveRecord integration
 * ActionView form helpers
+* Scaffold generator integration
 * Configurable enumeration labels
 * Auto-defined attribute methods
 * Dynamically-generated predicate methods
@@ -83,6 +84,10 @@ Expose the enumeration in your forms with +enum_select+
     <%= f.label :degree %> <%= f.enum_select :degree %><br/>
     <%= submit_tag 'save' %>
   <% end %>
+
+or generate a scaffold with one of your favorite scaffold generators.  Currently
+support scaffold generators include: scaffold, nifty_scaffold, rspec_scaffold, and wizardly_scaffold.
+See the section 'Generating Scaffolds' below.
 
 The select options text can be customized.  See 'Customizing Labels' in the Integration section.
 
@@ -466,6 +471,22 @@ example with the +form_tag+ and a @user object.
     <%= submit_tag 'Register' %>
   <% end %>
 
+==== Generating Scaffolds
+
+You can generate views with enumerations using your favorite scaffold generator.  Currently
+supported generators include: scaffold, nifty_scaffold, rspec_scaffold and wizardly_scaffold.
+For most scaffolds there are two steps.  First, generate the scaffold views and 
+migrations using the 'enum' type for enumerations
+
+  ./script/generate scaffold contractor name:string gender:enum age:integer status:enum
+
+Second, do not forget to add the +enum_attr+ macro to the generated model and migrate the database
+
+  class Contractor < ActiveRecord::Base
+    enum_attr :gender, %w(male female)
+    enum_attr :status, %w(available unavailable)
+  end
+  
 
 === Implementation Notes
 

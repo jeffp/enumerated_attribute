@@ -19,6 +19,22 @@ if defined?(ActiveRecord)
 	end
 end
 
+#ARGV is used by generators -- if it contains one of these generator commands - add enumeration support
+unless ((ARGV || []) & ["scaffold", "rspec_scaffold", "nifty_scaffold"]).empty?
+	require 'rails_generator'
+	module Rails
+		module Generator
+			class GeneratedAttribute
+				def field_type_with_enumerated_attribute
+					return (@field_type = :enum_select) if type == :enum
+					field_type_without_enumerated_attribute
+				end
+				alias_method_chain :field_type, :enumerated_attribute
+			end
+		end
+	end
+end
+
 if defined?(ActionView::Base)
 	module ActionView
 		module Helpers
