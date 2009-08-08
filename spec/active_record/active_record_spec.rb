@@ -192,6 +192,42 @@ describe "RaceCar" do
 		r=RaceCar.new
 		lambda { r.attributes = {:lights=>'off', :gear =>:drive} }.should raise_error(EnumeratedAttribute::InvalidEnumeration)
 	end
+
+=begin
+	#do not write symbols to enumerated column attributes using write_attribute
+	#do not user read_attribute to read an enumerated column attribute
+	it "should write enumeration with write_attribute" do
+		r=RaceCar.new
+		r.write_attribute(:gear, :first)
+		r.gear.should == :first
+		r.save!
+		
+		s=RaceCar.find r.id
+		s.gear.should == :first
+		s.write_attribute(:gear, :second)
+		s.save!
+		
+		t=RaceCar.find s.id
+		t.gear.should == :second
+	end
+	
+	it "should raise error when setting enumerated column attribute to invalid enum using write_attribute" do
+		r=RaceCar.new
+		lambda { r.write_attribute(:gear, :yo) }.should raise_error
+	end	
+=end
+	
+	it "should retrieve symbols for enumerations from ActiveRecord :attributes method" do
+		r=RaceCar.new
+		r.gear = :second
+		r.choke = :medium
+		r.lights = 'on'
+		r.save!
+		
+		s = RaceCar.find(r.id)
+		s.attributes['gear'].should == :second
+		s.attributes['lights'].should == 'on'
+	end
 	
 	it "should update_attribute for enumerated column attribute" do
 		r=RaceCar.new
@@ -231,12 +267,48 @@ describe "RaceCar" do
 	end
 	
 	it "should provide symbol values for enumerated column attributes from the :attributes method" do
+		r=RaceCar.new
+		r.lights = 'on'
+		r.save!
+		
+		s=RaceCar.find r.id
+		s.attributes['gear'].should == :neutral
 	end
 	
-	it "should provide normal values for non-enumerated column attributes from the :attributes method" do
+	it "should provide normal values for non-enumerated column attributes from the :attributes method"  do
+		r=RaceCar.new
+		r.lights = 'on'
+		r.save!
+		
+		s=RaceCar.find r.id
+		s.attributes['lights'].should == 'on'
 	end
 	
-	it "should raise ArgumentError when setting invalid enumertion value with :attributes= method" do
+	it "should raise InvalidEnumeration when setting invalid enumertion value with :attributes= method" do
+		r=RaceCar.new
+		lambda { r.attributes = {:gear=>:yo, :lights=>'on'} }.should raise_error(EnumeratedAttribute::InvalidEnumeration)
+	end
+	
+	it "should not set init value for enumerated column attribute saved as nil" do
+		r=RaceCar.new
+		r.gear = nil
+		r.lights = 'on'
+		r.save!
+		
+		s=RaceCar.find r.id
+		s.gear.should == nil
+		s.lights.should == 'on'
+	end
+	
+	it "should not set init value for enumerated column attributes saved as value" do
+		r=RaceCar.new
+		r.gear = :second
+		r.lights = 'all'
+		r.save!
+		
+		s=RaceCar.find r.id
+		s.gear.should == :second
+		s.lights.should == 'all'
 	end
 
 	it "should save and retrieve its name" do

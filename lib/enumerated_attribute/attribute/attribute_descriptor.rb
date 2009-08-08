@@ -3,6 +3,7 @@ module EnumeratedAttribute
 	module Attribute
 		class AttributeDescriptor < Array		
 			attr_reader :name
+			attr_accessor :init_value
 			
 			def initialize(name, enums=[], opts={})
 				super enums
@@ -39,7 +40,7 @@ module EnumeratedAttribute
 				@labels_hash[enum_value.to_sym] = label_string
 			end
 			
-			private
+			protected
 			def reset_labels
 				@labels_array = nil
 				@select_options = nil

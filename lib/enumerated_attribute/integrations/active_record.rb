@@ -50,9 +50,13 @@ module EnumeratedAttribute
 			end
 			
 			def attributes
-				super.map do |k,v|
-					self.class.has_enumerated_attribute?(k) ? @@enumerated_attributes[k].cast_enum_symbol(v) : v
+				atts = super
+				atts.each do |k,v|
+					if self.class.has_enumerated_attribute?(k)
+						atts[k] = v.to_sym if v
+					end
 				end
+				atts
 			end
 			
       def [](attr_name); read_enumerated_attribute(attr_name); end
@@ -73,9 +77,9 @@ module EnumeratedAttribute
 				
 				def instantiate(record)
 					object = super(record)
-					@enumerated_attribute_init.each do |k,v|
-						unless object.has_attribute?(k)
-							object.write_enumerated_attribute(k, v)
+					self.enumerated_attributes.each do |k,v|
+						unless object.has_attribute?(k) #only initialize the non-column enumerated attributes
+							object.write_enumerated_attribute(k, v.init_value)
 						end
 					end
 					object
@@ -84,14 +88,16 @@ module EnumeratedAttribute
 				def define_enumerated_attribute_new_method
 					class_eval <<-INITVAL
 						class << self
-							alias_method :new_without_enumerated_attribute, :new
-							def new(*args, &block)
-								result = new_without_enumerated_attribute(*args, &block)
-								params = (!args.empty? && args.first.instance_of?(Hash)) ? args.first : {}
-								params.each { |k, v| result.write_enumerated_attribute(k, v) }
-								result.initialize_enumerated_attributes(true)
-								yield result if block_given?
-								result
+							unless method_defined?(:new_without_enumerated_attribute)						
+								alias_method :new_without_enumerated_attribute, :new
+								def new(*args, &block)
+									result = new_without_enumerated_attribute(*args, &block)
+									params = (!args.empty? && args.first.instance_of?(Hash)) ? args.first : {}
+									params.each { |k, v| result.write_enumerated_attribute(k, v) }
+									result.initialize_enumerated_attributes(true)
+									yield result if block_given?
+									result
+								end
 							end
 						end
 					INITVAL

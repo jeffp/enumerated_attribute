@@ -27,12 +27,14 @@ module EnumeratedAttribute
 				def define_enumerated_attribute_new_method
 					class_eval <<-NEWMETH
 						class << self
-							alias_method :new_without_enumerated_attribute, :new
-							def new(*args, &block)
-								result = new_without_enumerated_attribute(*args)
-								result.initialize_enumerated_attributes
-								yield result if block_given?
-								result
+							unless method_defined?(:new_without_enumerated_attribute)
+								alias_method :new_without_enumerated_attribute, :new
+								def new(*args, &block)
+									result = new_without_enumerated_attribute(*args)
+									result.initialize_enumerated_attributes
+									yield result if block_given?
+									result
+								end
 							end
 						end
 					NEWMETH

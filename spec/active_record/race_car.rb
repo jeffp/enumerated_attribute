@@ -8,3 +8,8 @@ end
 #choke = enumerated non-column attribute
 #lights = non-enumerated column attribute
 
+=begin
+	t.string :name
+	t.string :gear
+	t.string :lights
+=end

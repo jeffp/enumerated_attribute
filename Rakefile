@@ -37,6 +37,19 @@ namespace :spec do
 		#t.rcov_dir = 'coverage'
 		#t.rcov_opts = ['--exclude', "kernel,load-diff-lcs\.rb,instance_exec\.rb,lib/spec.rb,lib/spec/runner.rb,^spec/*,bin/spec,examples,/gems,/Library/Ruby,\.autotest,#{ENV['GEM_HOME']}"]
 	end
+	Spec::Rake::SpecTask.new(:sub) do |t|
+		t.spec_files = FileList['spec/inheritance_spec.rb']
+		t.libs << 'lib' << 'spec'
+		t.rcov = false
+		t.spec_opts = ['--options', 'spec/spec.opts']
+	end
+	Spec::Rake::SpecTask.new(:poro) do |t|
+		t.spec_files = FileList['spec/poro_spec.rb']
+		t.libs << 'lib' << 'spec'
+		t.rcov = false
+		t.spec_opts = ['--options', 'spec/spec.opts']
+	end
+	
   desc "Run ActiveRecord integration specs"
 	Spec::Rake::SpecTask.new(:active_record) do |t|
 		t.spec_files = FileList['spec/active_record/*_spec.rb']
