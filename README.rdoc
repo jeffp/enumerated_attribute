@@ -512,14 +512,7 @@ overwriting the plugin's methods.  The best approach is shown here:
 
 ==== ActiveRecord
 
-When subclassing an ActiveRecord model class, do not forget to set the table_name.
-
-class SuperUser < User
-	set_table_name "users"
-end
-
-Do not user write_attribute to write an enumerated attribute, such as 
-write_attribute(:gender, :male).  Use the accessors, [], update_attribute, attribute or attributes methods.
+ActiveRecord's write_attribute and read_attribute methods do not support symbols for enumerated attributes.  
 
 
 == Testing
