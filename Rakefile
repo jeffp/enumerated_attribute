@@ -5,7 +5,7 @@ require 'rake/contrib/sshpublisher'
 
 spec = Gem::Specification.new do |s|
   s.name = 'enumerated_attribute'
-  s.version = '0.2.2'
+  s.version = '0.2.3'
   s.platform = Gem::Platform::RUBY
   s.description = 'Enumerated model attributes and view helpers'
   s.summary = 'Add enumerated attributes to your models and expose them in drop-down lists in your views'
@@ -37,6 +37,7 @@ namespace :spec do
 		#t.rcov_dir = 'coverage'
 		#t.rcov_opts = ['--exclude', "kernel,load-diff-lcs\.rb,instance_exec\.rb,lib/spec.rb,lib/spec/runner.rb,^spec/*,bin/spec,examples,/gems,/Library/Ruby,\.autotest,#{ENV['GEM_HOME']}"]
 	end
+=begin
 	Spec::Rake::SpecTask.new(:sub) do |t|
 		t.spec_files = FileList['spec/inheritance_spec.rb']
 		t.libs << 'lib' << 'spec'
@@ -49,7 +50,7 @@ namespace :spec do
 		t.rcov = false
 		t.spec_opts = ['--options', 'spec/spec.opts']
 	end
-	
+=end	
   desc "Run ActiveRecord integration specs"
 	Spec::Rake::SpecTask.new(:active_record) do |t|
 		t.spec_files = FileList['spec/active_record/*_spec.rb']

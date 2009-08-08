@@ -510,6 +510,17 @@ overwriting the plugin's methods.  The best approach is shown here:
     enum_attr temp:, %w(cold warm hot boiling)
   end
 
+==== ActiveRecord
+
+When subclassing an ActiveRecord model class, do not forget to set the table_name.
+
+class SuperUser < User
+	set_table_name "users"
+end
+
+Do not user write_attribute to write an enumerated attribute, such as 
+write_attribute(:gender, :male).  Use the accessors, [], update_attribute, attribute or attributes methods.
+
 
 == Testing
 
