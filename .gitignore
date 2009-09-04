@@ -10,3 +10,4 @@ tmp
 vendor
 lib/tasks/*
 TODO.rdoc
+webrat-*.html

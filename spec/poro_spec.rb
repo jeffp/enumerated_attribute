@@ -1,25 +1,35 @@
 require 'tractor'
 require 'plural'
 
+Spec::Matchers.define :define_instance_method do |method_name|
+  match do |klass_or_object|
+    if klass_or_object.is_a?(Class)
+      klass_or_object.method_defined?(method_name.to_sym)
+    else
+      klass_or_object.class.method_defined?(method_name.to_sym)
+    end
+  end
+end
+
 describe "Plural" do
 	it "should have plural accessor :boxes for :box" do
 		p=Plural.new
-		p.methods.should include("boxes")
+		p.should define_instance_method(:boxes) #methods.should include("boxes")
 		p.boxes.should == [:small, :medium, :large]
 	end
 	it "should have plural accessor :batches for :batch" do
 		p=Plural.new
-		p.methods.should include("batches")
+		p.should define_instance_method(:batches) #methods.should include("batches")
 		p.batches.should == [:none, :daily, :weekly]
 	end
 	it "should have plural accessor :cherries for :cherry" do
 		p=Plural.new
-		p.methods.should include("cherries")
+		p.should define_instance_method(:cherries) #methods.should include("cherries")
 		p.cherries.should == [:red, :green, :yellow]
 	end
 	it "should have plural accessor :guys for :guy" do
 		p=Plural.new
-		p.methods.should include("guys")
+		p.should define_instance_method(:guys) #methods.should include("guys")
 		p.guys.should == [:handsome, :funny, :cool]
 	end
 	
@@ -98,8 +108,8 @@ describe "Tractor" do
     t.plow = nil
     t.plow_not_nil?.should be_false
     t.plow_nil?.should be_true
-    Tractor.instance_methods(false).should include('plow_nil?')
-    Tractor.instance_methods(false).should include('plow_not_nil?')
+    Tractor.should define_instance_method(:plow_nil?) 
+    Tractor.should define_instance_method(:plow_not_nil?) 
   end
   
   it "should dynamically create :plow_is_nil? and :plow_is_not_nil?" do
@@ -109,8 +119,8 @@ describe "Tractor" do
     t.plow = nil
     t.plow_is_not_nil?.should be_false
     t.plow_is_nil?.should be_true
-    Tractor.instance_methods(false).should include('plow_is_nil?')
-    Tractor.instance_methods(false).should include('plow_is_not_nil?')    
+    Tractor.should define_instance_method(:plow_is_nil?) 
+    Tractor.should define_instance_method(:plow_is_not_nil?) 
   end
   
   it "should negate result for not_parked? defined with is_not" do
@@ -327,21 +337,18 @@ describe "Tractor" do
   end
   
   it "should have created instance methods for :reverse" do
-    m = Tractor.instance_methods(false)
-    m.should include('gear_is_in_reverse?')
-    m.should include('gear_is_not_in_reverse?')
+    Tractor.should define_instance_method(:gear_is_in_reverse?)
+    Tractor.should define_instance_method(:gear_is_not_in_reverse?)
   end
 
   it "should have created instance methods for :neutral" do
-    m = Tractor.instance_methods(false)
-    m.should include('gear_is_in_neutral?')
-    m.should include('gear_is_not_in_neutral?')
+    Tractor.should define_instance_method(:gear_is_in_neutral?)
+    Tractor.should define_instance_method(:gear_is_not_in_neutral?)
   end
 
   it "should have created instance methods for :over_drive" do
-    m = Tractor.instance_methods(false)
-    m.should include('gear_is_in_over_drive?')
-    m.should include('gear_is_not_in_over_drive?')
+    Tractor.should define_instance_method :gear_is_in_over_drive?
+    Tractor.should define_instance_method :gear_is_not_in_over_drive?
   end
   
   it "should raise NoMethodError for dynamic state methods not querying valid enumeration values" do

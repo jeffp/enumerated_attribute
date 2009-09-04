@@ -56,6 +56,7 @@ describe "Form using option_helper_tags" do
 
 end
 
+=begin
 describe "Form using ActiveRecord helpers" do
 	def form_page; '/form_test/form'; end
 	puts
@@ -71,3 +72,4 @@ describe "Form using ActiveRecord helpers" do
 	it_should_behave_like "enum_select form"
 	
 end
+=end
