@@ -1,7 +1,7 @@
 require 'test_in_memory'
 require 'enumerated_attribute'
 require 'active_record'
-require 'inheritance_classes'
+require 'active_record/inheritance_classes'
 
 def one_to_four; [:one, :two, :three, :four]; end
 def gear1; [:reverse, :neutral, :first, :second, :over_drive]; end
