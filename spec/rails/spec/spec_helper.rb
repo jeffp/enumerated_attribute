@@ -4,7 +4,9 @@ ENV["RAILS_ENV"] ||= 'test'
 require File.dirname(__FILE__) + "/../config/environment" unless defined?(RAILS_ROOT)
 #require 'enumerated_attribute'
 require 'spec/autorun'
+gem 'rspec-rails', '>= 1.3.2'
 require 'spec/rails'
+gem 'webrat', '>= 0.7.1'
 require 'webrat'
 require 'matchers'
 
