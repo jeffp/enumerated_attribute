@@ -21,6 +21,12 @@ Install
 == Notice
 
 Not yet Rails3 compliant
+
+== How to submit an Issue
+
+If something needs fixed, please submit issues to this Github project in the Issues tab and
+provide a series of FAILING RSPEC files that I can drop into the current RSpec
+test framework and run with little to no coersing.  Thanks.
 	
 == Description
 
