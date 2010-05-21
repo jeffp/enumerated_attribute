@@ -1,3 +1,4 @@
+require 'rubygems'
 require 'tractor'
 require 'plural'
 

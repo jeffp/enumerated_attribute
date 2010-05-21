@@ -1,3 +1,5 @@
+gem 'meta_programming', '>= 0.2.0'
+require 'meta_programming'
 require 'enumerated_attribute/attribute'
 
 module EnumeratedAttribute

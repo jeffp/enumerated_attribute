@@ -12,6 +12,7 @@ connection.create_table(:race_cars, :force=>true) do |t|
 	t.string :name
 	t.string :gear
 	t.string :lights
+  t.timestamps
 end
 connection.create_table(:bicycles, :force=>true) do |t|
 	t.string :name

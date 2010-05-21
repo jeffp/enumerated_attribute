@@ -2,7 +2,7 @@ require 'enumerated_attribute/attribute/attribute_descriptor'
 require 'enumerated_attribute/method_definition_dsl'
 require 'enumerated_attribute/integrations'
 require 'enumerated_attribute/rails_helpers'
-
+require 'ostruct'
 
 module EnumeratedAttribute
 
@@ -116,24 +116,20 @@ module EnumeratedAttribute
 				#define dynamic methods in method_missing
 				class_eval do
 					unless @enumerated_attribute_define_once_only
-						if method_defined?(:method_missing)
-							alias_method(:method_missing_without_enumerated_attribute, :method_missing)
-							def method_missing(methId, *args, &block)
-								return self.send(methId) if define_enumerated_attribute_dynamic_method(methId)
-								method_missing_without_enumerated_attribute(methId, *args, &block)
-							end
-						else
-							def method_missing(methId, *args, &block)
-								return self.send(methId) if define_enumerated_attribute_dynamic_method(methId)
-								super 
-							end
-						end
+            method_missing_suffix = "enumerated_attribute_#{self.class.name}_#{self.hash}".to_sym
+            define_method("method_missing_with_#{method_missing_suffix}") do |methId, *args|
+              return self.__send__(methId) if define_enumerated_attribute_dynamic_method(methId)
+              self.__send__("method_missing_without_#{method_missing_suffix}", methId, *args)
+            end
+            safe_alias_method_chain :method_missing, method_missing_suffix
 						@enumerated_attribute_define_once_only = true
-					
-						alias_method :respond_to_without_enumerated_attribute?, :respond_to?
-						def respond_to?(method)
-							respond_to_without_enumerated_attribute?(method) || (!!parse_dynamic_method_parts!(method.to_s) rescue false)
-						end
+
+            respond_to_suffix = "enumerated_attribute_#{self.class.name}_#{self.hash}".to_sym
+            define_method("respond_to_with_#{respond_to_suffix}?") do |method|
+              self.__send__("respond_to_without_#{respond_to_suffix}?".to_sym, method.to_sym) ||
+                (!!parse_dynamic_method_parts!(method.to_s) rescue false)
+            end
+            safe_alias_method_chain :respond_to?, respond_to_suffix
 						
 						def initialize_enumerated_attributes(only_if_nil = false)
 							#self.class.enumerated_attribute_initial_value_list.each do |k,v|

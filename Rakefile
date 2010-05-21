@@ -2,10 +2,11 @@
 require 'rake/rdoctask'
 require 'rake/gempackagetask'
 require 'rake/contrib/sshpublisher'
+require 'gem_version'
 
 spec = Gem::Specification.new do |s|
   s.name = 'enumerated_attribute'
-  s.version = '0.2.3'
+  s.version = GemVersion.next_version
   s.platform = Gem::Platform::RUBY
   s.description = 'Enumerated model attributes and view helpers'
   s.summary = 'Add enumerated attributes to your models and expose them in drop-down lists in your views'
@@ -88,6 +89,8 @@ task :gemspec do
   File.open("#{spec.name}.gemspec", 'w') do |f|
     f.write spec.to_ruby
   end
+  GemVersion.increment_version
+  GemVersion.commit_and_push
 end
  
 Rake::GemPackageTask.new(spec) do |p|
