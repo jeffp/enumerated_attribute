@@ -58,4 +58,11 @@ connection.create_table(:images, :force=>true) do |t|
 	t.string :status
 end
 
-
+#single table inheritance
+connection.create_table(:sti_parents, :force=>true) do |t|
+  t.string :type
+  t.string :parent_enum
+  t.string :sub_nonenum
+  t.string :sub_enum
+  t.timestamps
+end
