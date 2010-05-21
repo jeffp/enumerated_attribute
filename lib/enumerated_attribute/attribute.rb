@@ -13,37 +13,55 @@ module EnumeratedAttribute
 	class AmbiguousMethod < EnumeratedAttributeError; end
 
 	module Attribute
-	
 			private
-			def create_enumerated_attribute(*args, &block)
-				return if args.empty?
-				attr_name = args[0].to_s
-				attr_sym = attr_name.to_sym
-				enums = (args[1] && args[1].instance_of?(Array) ? args[1] : [])
-				index = enums.empty? ? 1 : 2
-				opts = (args[index] && args[index].instance_of?(Hash) ? args[index] : {})
-				
-				raise(InvalidDefinition, 'second argument of enumerated_attribute/enum_attr is not an array of symbols or strings representing the enum values', caller) if enums.empty?
-
-				initial_value = nil
-				plural_name = opts[:plural] || opts[:enums_accessor] || opts[:enums] || begin 
+      def validate_enum_attr_arguments(config)
+				raise(InvalidDefinition, 'second argument of enumerated_attribute/enum_attr is not an array of symbols or strings representing the enum values', caller) if config.enums.empty?
+      end
+      def init_incrementor_decrementor_method_names(config)
+				config.incrementor = config.opts[:incrementor] || config.opts[:inc] || "#{config.attr_name}_next"
+				config.decrementor = config.opts[:decrementor] || config.opts[:dec] || "#{config.attr_name}_previous"
+      end
+      def init_plural_name(config)
+				config.plural_name = config.opts[:plural] || config.opts[:enums_accessor] || config.opts[:enums] || begin
 				case
-					when attr_name =~ /[aeiou]y$/
-						"#{attr_name}s"
-					when attr_name =~ /y$/
-						attr_name.sub(/y$/, 'ies')
-					when attr_name =~ /(sh|ch|x|s)$/
-						"#{attr_name}es"
+					when config.attr_name =~ /[aeiou]y$/
+						"#{config.attr_name}s"
+					when config.attr_name =~ /y$/
+						config.attr_name.sub(/y$/, 'ies')
+					when config.attr_name =~ /(sh|ch|x|s)$/
+						"#{config.attr_name}es"
 					else
-						"#{attr_name}s"
+						"#{config.attr_name}s"
 					end
 				end
-				incrementor = opts[:incrementor] || opts[:inc] || "#{attr_name}_next"
-				decrementor = opts[:decrementor] || opts[:dec] || "#{attr_name}_previous"
+      end
+      def process_enums_for_initial_value(config)
+        config.initial_value = nil
+				config.enums = config.enums.map{|v| (v =~ /^\^/ ? (config.initial_value ||= v[1, v.length-1].to_sym) : v.to_sym )}
+      end
 
-				enums = enums.map{|v| (v =~ /^\^/ ? (initial_value ||= v[1, v.length-1].to_sym) : v.to_sym )}
+      def parse_enum_attr_arguments(args)
+        config = OpenStruct.new
+        config.attr_name = args[0].to_s
+        config.attr_symbol = config.attr_name.to_sym
+        config.enums = (args[1] && args[1].is_a?(Array) ? args[1] : [])
+        index = config.enums.empty? ? 1 : 2
+        config.opts = (args[index] && args[index].is_a?(Hash) ? args[index] : {})
+
+        validate_enum_attr_arguments(config)
+        init_plural_name(config)
+        init_incrementor_decrementor_method_names(config)
+        process_enums_for_initial_value(config)
+
+        config
+      end
+
+
+			def create_enumerated_attribute(*args, &block)
+				return if args.empty?
+        config = parse_enum_attr_arguments(args)
 				
-				class_eval <<-ATTRIB
+				class_eval do
 					def self.enumerated_attributes(all=true)
 						return @enumerated_attributes unless all
 						return @all_enumerated_attributes_cache if @all_enumerated_attributes_cache
@@ -62,11 +80,11 @@ module EnumeratedAttribute
 					end
 					def enums(attr); self.class.enumerated_attributes[attr.to_sym]; end
 					@enumerated_attributes ||= {}
-					@enumerated_attributes[:#{attr_name}] = AttributeDescriptor.new(:#{attr_name}, #{enums.inspect}, #{opts.inspect})
-				ATTRIB
+					@enumerated_attributes[config.attr_symbol] = AttributeDescriptor.new(config.attr_symbol, config.enums, config.opts)
+        end
 				
 				#define_enumerated_attribute_[writer, reader] may be modified in a named Integrations module (see Integrations::ActiveRecord)
-				class_eval <<-MAP
+				class_eval do
 					unless @integration_map
 						@integration_map = Integrations.find_integration_map(self)
 						@integration_map[:aliasing].each do |p|
@@ -89,14 +107,14 @@ module EnumeratedAttribute
 							descriptor.allows_value?(value)
 						end
 					end
-				MAP
+        end
 				
 				#create accessors
-				define_enumerated_attribute_reader_method(attr_sym) unless (opts.key?(:reader) && !opts[:reader])
-				define_enumerated_attribute_writer_method(attr_sym) unless (opts.key?(:writer) && !opts[:writer])
+				define_enumerated_attribute_reader_method(config.attr_symbol) unless (config.opts.key?(:reader) && !config.opts[:reader])
+				define_enumerated_attribute_writer_method(config.attr_symbol) unless (config.opts.key?(:writer) && !config.opts[:writer])
 				
 				#define dynamic methods in method_missing
-				class_eval <<-METHOD
+				class_eval do
 					unless @enumerated_attribute_define_once_only
 						if method_defined?(:method_missing)
 							alias_method(:method_missing_without_enumerated_attribute, :method_missing)
@@ -185,35 +203,33 @@ module EnumeratedAttribute
 						end
 										
 					end
-				METHOD
+        end
 
 				#create state and action methods from block
-				initial_value = opts[:init] || initial_value  
+				config.initial_value = config.opts[:init] || config.initial_value
 				if block_given?
-					m = EnumeratedAttribute::MethodDefinitionDSL.new(self, self.enumerated_attributes(false)[attr_sym]) #attr_name, enums)
+					m = EnumeratedAttribute::MethodDefinitionDSL.new(self, self.enumerated_attributes(false)[config.attr_symbol]) #attr_name, enums)
 					m.instance_eval(&block)
-					initial_value = m.initial_value || initial_value
-					plural_name = m.pluralized_name || plural_name
-					decrementor = m.decrementor_name || decrementor
-					incrementor = m.incrementor_name || incrementor
+					config.initial_value = m.initial_value || config.initial_value
+					config.plural_name = m.pluralized_name || config.plural_name
+					config.decrementor = m.decrementor_name || config.decrementor
+					config.incrementor = m.incrementor_name || config.incrementor
 				end
 
 				#define the enum values accessor
-				class_eval <<-ENUM
-					def #{plural_name}
-						self.class.enumerated_attributes[:#{attr_name}]
+				class_eval do
+          define_method(config.plural_name.to_sym) { self.class.enumerated_attributes[config.attr_symbol]}
+					define_method(config.incrementor.to_sym) do
+						z = self.class.enumerated_attributes[config.attr_symbol].enums
+						index = z.index(read_enumerated_attribute(config.attr_symbol))
+						write_enumerated_attribute(config.attr_symbol, z[index >= z.size-1 ? 0 : index+1])
 					end
-					def #{incrementor}
-						z = self.class.enumerated_attributes[:#{attr_name}].enums
-						index = z.index(read_enumerated_attribute(:#{attr_name}))
-						write_enumerated_attribute(:#{attr_name}, z[index >= z.size-1 ? 0 : index+1])
+  				define_method(config.decrementor.to_sym) do
+						z = self.class.enumerated_attributes[config.attr_symbol].enums
+						index = z.index(read_enumerated_attribute(config.attr_symbol))
+						write_enumerated_attribute(config.attr_symbol, z[index > 0 ? index-1 : z.size-1])
 					end
-					def #{decrementor}
-						z = self.class.enumerated_attributes[:#{attr_name}].enums
-						index = z.index(read_enumerated_attribute(:#{attr_name}))
-						write_enumerated_attribute(:#{attr_name}, z[index > 0 ? index-1 : z.size-1])
-					end
-				ENUM
+        end
 				
 				#unless defined?(@enumerated_attribute_init)
 					define_enumerated_attribute_new_method
@@ -224,8 +240,8 @@ module EnumeratedAttribute
 				#end
 				class_eval do
 					@enumerated_attributes ||={}
-					if (initial_value = opts[:init] || initial_value)
-						@enumerated_attributes[attr_sym].init_value = initial_value
+					if (config.initial_value = config.opts[:init] || config.initial_value)
+						@enumerated_attributes[config.attr_symbol].init_value = config.initial_value
 					end
 					#def self.enumerated_attribute_initial_value_list; @enumerated_attribute_init; end
 				end

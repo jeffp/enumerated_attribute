@@ -25,7 +25,7 @@ module EnumeratedAttribute
 				private
 				
 				def define_enumerated_attribute_new_method
-					class_eval <<-NEWMETH
+					class_eval do
 						class << self
 							unless method_defined?(:new_without_enumerated_attribute)
 								alias_method :new_without_enumerated_attribute, :new
@@ -37,7 +37,7 @@ module EnumeratedAttribute
 								end
 							end
 						end
-					NEWMETH
+          end
 				end
 				
 			end

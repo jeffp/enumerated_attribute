@@ -86,7 +86,7 @@ module EnumeratedAttribute
 				end
 				
 				def define_enumerated_attribute_new_method
-					class_eval <<-INITVAL
+					class_eval do
 						class << self
 							unless method_defined?(:new_without_enumerated_attribute)						
 								alias_method :new_without_enumerated_attribute, :new
@@ -100,7 +100,7 @@ module EnumeratedAttribute
 								end
 							end
 						end
-					INITVAL
+          end
 				end
 
 			end

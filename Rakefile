@@ -28,7 +28,7 @@ require 'spec/rake/spectask'
 desc "Run specs"
 
 namespace :spec do
-	task :default=>:object
+	task :default=>:all
 	Spec::Rake::SpecTask.new(:object) do |t|
 		t.spec_files = FileList['spec/*_spec.rb']
 		t.libs << 'lib' << 'spec'
@@ -52,7 +52,7 @@ namespace :spec do
 	end
 =end	
   desc "Run ActiveRecord integration specs"
-	Spec::Rake::SpecTask.new(:active_record) do |t|
+	Spec::Rake::SpecTask.new(:ar) do |t|
 		t.spec_files = FileList['spec/active_record/*_spec.rb']
 		t.libs << 'lib' << 'spec/active_record'
 		t.spec_opts = ['--options', 'spec/spec.opts']    
@@ -70,7 +70,7 @@ namespace :spec do
 #		t.rcov = false
 #	end
 	desc "Run all specs"
-	task :all=>[:object, :active_record, :forms] 
+	task :all=>[:object, :ar, :forms] 
 end
 
 
