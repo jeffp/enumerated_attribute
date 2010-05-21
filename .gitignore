@@ -1,6 +1,8 @@
 .DS_Store
 **/*.log
 spec/**/*.log
+*.gem
+*.gemspec
 pkg
 rdoc
 coverage

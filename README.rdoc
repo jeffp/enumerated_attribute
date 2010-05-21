@@ -16,7 +16,11 @@ Source
 
 Install
 
-* sudo gem install jeffp-enumerated_attribute --source=http://gems.github.com
+* sudo gem install enumerated_attribute
+
+== Notice
+
+Not yet Rails3 compliant
 	
 == Description
 
@@ -49,7 +53,7 @@ For a Ruby application, install the gem and require it
 or for a rails application configure the gem in the config block of the
 config/environment.rb file
 
-  config.gem "jeffp-enumerated_attribute", :lib=>"enumerated_attribute"
+  config.gem "enumerated_attribute"
 
 and run the gem install rake task
 
