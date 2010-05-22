@@ -1,3 +1,4 @@
+require 'active_record/connection_adapters/abstract/schema_definitions'
 
 if defined?(ActiveRecord)
 	module ActiveRecord
@@ -7,7 +8,7 @@ if defined?(ActiveRecord)
 					type = 'string' if type.to_s == 'enum'
 					column_without_enumerated_attribute(name, type, options)
 				end
-				alias_method_chain :column, :enumerated_attribute
+				safe_alias_method_chain :column, :enumerated_attribute
 				
 				def enum(*args)
 					options = args.extract_options!                                      
@@ -22,7 +23,13 @@ end
 #ARGV is used by generators -- if it contains one of these generator commands - add enumeration support
 #unless ((ARGV || []) & ["scaffold", "rspec_scaffold", "nifty_scaffold"]).empty?
 if ((ARGV || []).any?{|o| o =~ /scaffold/ })
-	require 'rails_generator'
+	require 'rails_generator' rescue nil
+  begin
+    require 'rails/generators'
+    require 'rails/generators/generated_attribute'
+  rescue
+  end
+
 	module Rails
 		module Generator
 			class GeneratedAttribute

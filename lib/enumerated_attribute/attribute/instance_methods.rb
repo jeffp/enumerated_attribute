@@ -10,10 +10,12 @@ module EnumeratedAttribute
         end
 
         respond_to_suffix = "enumerated_attribute_#{base.name}_#{base.hash}".to_sym
-        define_method("respond_to_with_#{respond_to_suffix}?") do |method|
-          self.__send__("respond_to_without_#{respond_to_suffix}?".to_sym, method.to_sym) ||
-            (!!parse_dynamic_method_parts!(method.to_s) rescue false)
-        end
+        base.class_eval %{
+          def respond_to_with_#{respond_to_suffix}?(method, include_private=false)
+            self.respond_to_without_#{respond_to_suffix}?(method, include_private) ||
+              (!!parse_dynamic_method_parts!(method.to_s) rescue false)
+          end
+        }
 
         base.safe_alias_method_chain :method_missing, method_missing_suffix
         base.safe_alias_method_chain :respond_to?, respond_to_suffix

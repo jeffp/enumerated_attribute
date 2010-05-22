@@ -15,7 +15,6 @@ module EnumeratedAttribute
 	class InvalidDefinition < EnumeratedAttributeError; end
 	class AmbiguousMethod < EnumeratedAttributeError; end
 
-
   module Attribute
     private
 
