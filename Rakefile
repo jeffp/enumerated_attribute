@@ -10,6 +10,8 @@ spec = Gem::Specification.new do |s|
   s.platform = Gem::Platform::RUBY
   s.description = 'Enumerated model attributes and view helpers'
   s.summary = 'Add enumerated attributes to your models and expose them in drop-down lists in your views'
+
+  s.add_dependency('meta_programming', '>= 0.2.1')
   
   exclude_folders = 'spec/rails/{doc,lib,log,nbproject,tmp,vendor,test}'
   exclude_files = FileList['**/*.log'] + FileList[exclude_folders+'/**/*'] + FileList[exclude_folders]
