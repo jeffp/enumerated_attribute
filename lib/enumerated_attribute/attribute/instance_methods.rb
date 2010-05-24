@@ -3,13 +3,13 @@ module EnumeratedAttribute
     module InstanceMethods
       def self.included(base)
 
-        method_missing_suffix = "enumerated_attribute_#{base.name}_#{base.hash.abs}".to_sym
+        method_missing_suffix = "enumerated_attribute_#{base.name.gsub(/^.+>::/,'')}_#{base.hash.abs}".to_sym
         define_method("method_missing_with_#{method_missing_suffix}") do |methId, *args|
           return self.__send__(methId) if define_enumerated_attribute_dynamic_method(methId)
           self.__send__("method_missing_without_#{method_missing_suffix}", methId, *args)
         end
 
-        respond_to_suffix = "enumerated_attribute_#{base.name}_#{base.hash.abs}".to_sym
+        respond_to_suffix = "enumerated_attribute_#{base.name.gsub(/^.+>::/,'')}_#{base.hash.abs}".to_sym
         base.class_eval %{
           def respond_to_with_#{respond_to_suffix}?(method, include_private=false)
             self.respond_to_without_#{respond_to_suffix}?(method, include_private) ||
