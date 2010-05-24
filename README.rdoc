@@ -20,35 +20,33 @@ Install
 
 == Notice
 
-Not yet Rails3 compliant
+Not yet Rails3 compliant -- but getting close.  Stay tuned.
 
 == How to submit an Issue
 
 If something needs fixed, please submit issues to this Github project in the Issues tab and
 provide a series of FAILING RSPEC files that I can drop into the current RSpec
 test framework and run with little to no coersing.  Thanks.
+
+== Contributors
+
+* Lailson Bandeira - Rails 3 updates
 	
 == Description
 
-Enumerations are a common and useful pattern in programming.  Typically, in Ruby, 
-enumerated attributes are implemented with strings, symbols or constants.  Often the 
+Typically, in Ruby, enumerated attributes are implemented with strings, symbols or constants.  Often the 
 developer is burdened with repeatedly defining common methods in support of each
-attribute.  Such repetition coding unnecessarily increases costs and wastes time.
+attribute.  +enumerated_attribute+ provides a DRY implementation for enumerations in Rails.  
+Repetitive code such as initializers, accessors, predicate and enumeration methods are automatically generated
+along with the following features:
 
-+enumerated_attribute+ simplifies the definition of enumerated attributes by emphasizing 
-convention and DRYing the implementation.  Repetitive code such as initializers, accessors, 
-predicate and enumeration methods are automatically generated, resulting in better 
-encapsulation, quicker implementation and cleaner code.
-
-Features include:
 * ActiveRecord integration
 * ActionView form helpers
 * Scaffold generator integration
-* Configurable enumeration labels
-* Auto-defined attribute methods
-* Dynamically-generated predicate methods
-* Automatic initialization
-* Advanced configuration DSL
+* Definable enumeration labels
+* Enum helper methods
+* Syntactical predicate methods
+* Initialization
 
 == Setup
 
