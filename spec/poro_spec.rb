@@ -182,6 +182,18 @@ describe "Tractor" do
     t.respond_to?(:gear_is_in_high?).should be_false
   end
   
+  it "should return true when calling respond_to? for :gear_is_in_neutral? with an optional argument" do
+    t=Tractor.new
+    t.respond_to?(:gear_is_in_neutral?, true).should be_true
+    t.respond_to?(:gear_is_in_neutral?, false).should be_true
+  end
+
+  it "should return true when called respond_to? for :gear_is_in_high? with an optional argument" do
+    t=Tractor.new
+    t.respond_to?(:gear_is_in_high?, true).should be_false
+    t.respond_to?(:gear_is_in_high?, false).should be_false
+  end
+
   it "should initially set :plow to :up" do
     t=Tractor.new
     t.plow.should == :up
