@@ -28,6 +28,7 @@ if ((ARGV || []).any?{|o| o =~ /scaffold/ })
     require 'rails/generators'
     require 'rails/generators/generated_attribute'
   rescue
+  rescue Exception => ex
   end
 
 	module Rails
