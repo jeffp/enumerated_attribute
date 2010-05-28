@@ -49,6 +49,7 @@ along with the following features:
 * Enum helper methods
 * Syntactical predicate methods
 * Initialization
+* State pattern support (enumerated_state[http://github.com/jeffp/enumerated_state])
 
 == Setup
 
