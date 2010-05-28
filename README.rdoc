@@ -22,6 +22,8 @@ Install
 
 Not yet Rails3 compliant -- but getting close.  Stay tuned.
 
+Be a good coder ... get state pattern support for your enumerated attributes (enumerated_state[http://github.com/jeffp/enumerated_state])
+
 == How to submit an Issue
 
 If something needs fixed, please submit issues to this Github project in the Issues tab and
