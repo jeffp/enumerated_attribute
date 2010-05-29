@@ -1,6 +1,9 @@
 module EnumeratedAttribute
   module Attribute
     module ClassMethods
+      def refresh_enumerated_attributes
+        @all_enumerated_attributes_cache = nil
+      end
       def enumerated_attributes(all=true)
         return @enumerated_attributes unless all
         return @all_enumerated_attributes_cache if @all_enumerated_attributes_cache

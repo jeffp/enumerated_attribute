@@ -72,6 +72,7 @@ module EnumeratedAttribute
           write_enumerated_attribute(config.attr_symbol, z[index > 0 ? index-1 : z.size-1])
         end
       end
+      refresh_enumerated_attributes
     end
   end
 		

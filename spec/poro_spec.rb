@@ -12,6 +12,17 @@ Spec::Matchers.define :define_instance_method do |method_name|
   end
 end
 
+describe "enumerated_attributes caching" do
+  class Impl1
+    enum_attr :enum1, %w(e1 e2)
+    enumerated_attributes
+    enum_attr :enum2, %w(e3 e4)
+  end
+  it "should have enum2 described even though enumerated_attributes cached state" do
+    obj = Impl1.new
+    lambda { obj.enum2 = :e3 }.should_not raise_exception
+  end
+end
 describe "Plural" do
 	it "should have plural accessor :boxes for :box" do
 		p=Plural.new
