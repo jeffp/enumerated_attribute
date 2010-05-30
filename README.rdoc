@@ -48,7 +48,7 @@ along with the following features:
 * Scaffold generator integration
 * Definable enumeration labels
 * Enum helper methods
-* Syntactical predicate methods
+* Dynamic predicate methods
 * Initialization
 * State pattern support (enumerated_state[http://github.com/jeffp/enumerated_state])
 
