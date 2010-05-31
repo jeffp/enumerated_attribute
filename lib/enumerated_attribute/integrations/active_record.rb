@@ -70,9 +70,9 @@ module EnumeratedAttribute
 				private
 				
 				def construct_attributes_from_arguments(attribute_names, arguments)
-					attributes = super
-					attributes.each { |k,v| attributes[k] = v.to_s if has_enumerated_attribute?(k) }
-					attributes
+          attributes = {}
+          attribute_names.each_with_index{|name, idx| attributes[name] = has_enumerated_attribute?(name) ? arguments[idx].to_s : arguments[idx]}
+          attributes
 				end
 				
 				def instantiate(record)
@@ -99,10 +99,23 @@ module EnumeratedAttribute
 									result
 								end
 							end
+              unless private_method_defined?(:method_missing_without_enumerated_attribute)
+                define_chained_method(:method_missing, :enumerated_attribute) do |method_id, *arguments|
+                  arguments = arguments.map{|arg| arg.is_a?(Symbol) ? arg.to_s : arg }
+                  method_missing_without_enumerated_attribute(method_id, *arguments)
+                end
+              end
+#              unless private_method_defined?(:method_missing_without_enumerated_attribute)
+#                alias_method :method_missing_without_enumerated_attribute, :method_missing
+#                def method_missing(method_id, *arguments, &block)
+#                  arguments = arguments.map{|arg| arg.is_a?(Symbol) ? arg.to_s : arg }
+#                  method_missing_without_enumerated_attribute(method_id, *arguments, &block)
+#                end
+#                private :method_missing
+#              end
 						end
           end
 				end
-
 			end
 		end	
 	end

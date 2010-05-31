@@ -65,8 +65,29 @@ describe "RaceCar" do
 		s.gear_is_nil?.should be_false
 		s.gear_is_not_nil?.should be_true
 	end
-	
-	it "should find record by enumerated column :gear attributes" do
+
+  it "should be created and found with dynamic find or creator method" do
+    s = RaceCar.find_or_create_by_name_and_gear('specialty', :second)
+    s.should_not be_nil
+    s.gear.should == :second
+    s.name.should == 'specialty'
+
+    s0 = RaceCar.find_or_create_by_name_and_gear('specialty', :second)
+    s0.gear.should == :second
+    s0.id.should == s.id
+  end
+  it "should be initialized with dynamic find or initialize method" do
+    s = RaceCar.find_or_initialize_by_name_and_gear('myspecialty', :second)
+    s.should_not be_nil
+    s.gear.should == :second
+    s.name.should == 'myspecialty'
+    lambda { s.save! }.should_not raise_exception
+
+    s0 = RaceCar.find_or_initialize_by_name_and_gear('myspecialty', :second)
+    s0.gear.should == :second
+    s0.id.should == s.id
+  end
+	it "should find record using dynamic finder by enumerated column :gear attributes" do
 		r=RaceCar.new
 		r.gear = :second
 		r.name = 'special'
