@@ -20,10 +20,11 @@ Install
 
 == Notice
 
-Rails 3 update... I have reports that enumerated_attribute is working on Rails3
-with the exception of dynamic finders.
+* Rails 3 ... dynamic finders working... should be rails3 ready.  We are completing form tests.
 
-Write cleaner code ... implement state patterns for your enumerated attributes (enumerated_state[http://github.com/jeffp/enumerated_state])
+* Rails 2.3.8 breaks find_or_create_by_... and find_or_initialize_by_... methods.  Write me if you gotta have it... otherwise happy Rails3.
+
+* Write cleaner code ... implement state patterns for your enumerated attributes (enumerated_state[http://github.com/jeffp/enumerated_state])
 
 == How to submit an Issue
 

@@ -105,14 +105,6 @@ module EnumeratedAttribute
                   method_missing_without_enumerated_attribute(method_id, *arguments)
                 end
               end
-#              unless private_method_defined?(:method_missing_without_enumerated_attribute)
-#                alias_method :method_missing_without_enumerated_attribute, :method_missing
-#                def method_missing(method_id, *arguments, &block)
-#                  arguments = arguments.map{|arg| arg.is_a?(Symbol) ? arg.to_s : arg }
-#                  method_missing_without_enumerated_attribute(method_id, *arguments, &block)
-#                end
-#                private :method_missing
-#              end
 						end
           end
 				end
