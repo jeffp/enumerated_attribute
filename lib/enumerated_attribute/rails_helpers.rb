@@ -72,17 +72,19 @@ if defined?(ActionView::Base)
 				end
 				
 				#initialize record_name, method, self
-				def to_tag_with_enumerated_attribute(options={})
-					#look for an enum
-					if (column_type == :string && 
-						self.object.class.respond_to?(:has_enumerated_attribute?) &&
-						self.object.class.has_enumerated_attribute?(method_name.to_sym)) 
-						to_enum_select_tag(options)
-					else
-						to_tag_without_enumerated_attribute(options)
-					end
+				if respond_to?(:to_tag)
+  				def to_tag_with_enumerated_attribute(options={})
+  					#look for an enum
+  					if (column_type == :string && 
+  						self.object.class.respond_to?(:has_enumerated_attribute?) &&
+  						self.object.class.has_enumerated_attribute?(method_name.to_sym)) 
+  						to_enum_select_tag(options)
+  					else
+  						to_tag_without_enumerated_attribute(options)
+  					end
+  				end
+  				alias_method_chain :to_tag, :enumerated_attribute
 				end
-				alias_method_chain :to_tag, :enumerated_attribute
 			end
 			
 			class FormBuilder
