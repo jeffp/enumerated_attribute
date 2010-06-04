@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../spec_helper.rb'
+require File.expand_path(File.join(File.dirname(__FILE__), '../spec_helper.rb'))
 
 shared_examples_for "enum_select form" do
 	it "should have select boxes for gender, status and degree initially set blank" do
