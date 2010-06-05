@@ -2,6 +2,7 @@
 require 'rake/rdoctask'
 require 'rake/gempackagetask'
 require 'rake/contrib/sshpublisher'
+gem 'gem_version', '>=0.0.6'
 require 'gem_version'
 
 spec = Gem::Specification.new do |s|
@@ -92,7 +93,9 @@ task :gemspec do
     f.write spec.to_ruby
   end
   GemVersion.increment_version
-  GemVersion.commit_and_push
+  GemVersion.commit_and_push do |git|
+    git.add("#{spec.name}.gemspec")
+  end
 end
  
 Rake::GemPackageTask.new(spec) do |p|
