@@ -568,7 +568,7 @@ To test the plugin for regular ruby objects, run:
 Testing ActiveRecord integration requires the install of Sqlite3 and the 
 sqlite3-ruby gem.  To test ActiveRecord, run:
 
-  rake spec:active_record
+  rake spec:ar
 
 And for testing +enum_select+ in form views:
 
