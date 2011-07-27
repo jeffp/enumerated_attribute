@@ -25,10 +25,6 @@ module EnumeratedAttribute
 				val = nil if val == ''
 				val_str = val.to_s if val
 				val_sym = val.to_sym if val
-				unless self.class.enumerated_attribute_allows_value?(name, val_sym)
-					raise(InvalidEnumeration, "nil is not allowed on '#{name}' attribute, set :nil=>true option", caller) unless val
-					raise(InvalidEnumeration, ":#{val_str} is not a defined enumeration value for the '#{name}' attribute", caller)
-				end
 				return instance_variable_set('@'+name, val_sym) unless self.has_attribute?(name)
 				write_attribute(name, val_str)
 				val_sym
@@ -51,12 +47,7 @@ module EnumeratedAttribute
 				return if attrs.nil?
 				#check the attributes then turn them over 
 				attrs.each do |k, v|
-					if self.class.has_enumerated_attribute?(k)
-						unless self.class.enumerated_attribute_allows_value?(k, v)
-							raise InvalidEnumeration, ":#{v.to_s} is not a defined enumeration value for the '#{k.to_s}' attribute", caller
-						end
-						attrs[k] = v.to_s
-					end
+					attrs[k] = v.to_s if self.class.has_enumerated_attribute?(k)
 				end
 				
 				super
