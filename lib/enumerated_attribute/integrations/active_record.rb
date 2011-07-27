@@ -4,6 +4,19 @@ module EnumeratedAttribute
 		module ActiveRecord
 			def self.included(klass)
 				klass.extend(ClassMethods)
+				klass.validate :validate_enumerated_attribute
+			end
+
+			def validate_enumerated_attribute
+				attributes.each do |k,v|
+					if self.class.has_enumerated_attribute?(k) and not self.class.enumerated_attribute_allows_value?(k, v)
+						if v
+							errors.add(k, :inclusion)
+						else
+							errors.add(k, :blank)
+						end
+					end
+				end
 			end
 			
 			def write_enumerated_attribute(name, val)
