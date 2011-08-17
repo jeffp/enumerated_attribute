@@ -16,6 +16,19 @@ if defined?(ActiveRecord)
 					column_names.each { |name| column(name, 'string', options) }  
 				end
 			end
+			class Table
+				def column_with_enumerated_attribute(name, type, options = {})
+					type = 'string' if type.to_s == 'enum'
+					column_without_enumerated_attribute(name, type, options)
+				end
+				safe_alias_method_chain :column, :enumerated_attribute
+				
+				def enum(*args)
+					options = args.extract_options!                                      
+					column_names = args                                                   
+					column_names.each { |name| column(name, 'string', options) }  
+				end
+			end
 		end
 	end
 end
