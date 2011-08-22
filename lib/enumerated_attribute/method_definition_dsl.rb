@@ -124,7 +124,7 @@ module EnumeratedAttribute
       if (!@attr_descriptor.empty? && !@attr_descriptor.include?(mdef.argument.to_sym))
         raise(InvalidDefinition, "'#{mdef.argument}' in method '#{mdef.method_name}' is not an enumeration value for :#{@attr_name} attribute", caller) 
       end
-      @class_obj.class_eval("def #{mdef.method_name}; @#{@attr_name} #{mdef.negated ? '!=' : '=='} :#{mdef.argument}; end") 
+      @class_obj.class_eval("def #{mdef.method_name}; self.#{@attr_name} #{mdef.negated ? '!=' : '=='} :#{mdef.argument}; end") 
     end
 
     def create_custom_method_for_array_of_enums(mdef)
@@ -135,7 +135,7 @@ module EnumeratedAttribute
           end
         end
       end
-      @class_obj.class_eval("def #{mdef.method_name}; #{mdef.negated ? '!' : ''}[:#{mdef.argument.join(',:')}].include?(@#{@attr_name}); end")
+      @class_obj.class_eval("def #{mdef.method_name}; #{mdef.negated ? '!' : ''}[:#{mdef.argument.join(',:')}].include?(self.#{@attr_name}); end")
     end
   end
 	
