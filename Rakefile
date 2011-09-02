@@ -2,14 +2,10 @@
 require 'rdoc/task'
 require 'rubygems/package_task'
 require 'rake/contrib/sshpublisher'
-gem 'gem_version', '>=0.0.6'
-require 'gem_version'
 
 require 'jeweler'
 Jeweler::Tasks.new do |s|
   s.name = 'enumerated_attribute'
-  s.version = GemVersion.next_version
-  s.platform = Gem::Platform::RUBY
   s.description = 'Enumerated model attributes and view helpers'
   s.summary = 'Add enumerated attributes to your models and expose them in drop-down lists in your views'
 
