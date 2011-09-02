@@ -6,8 +6,8 @@ require 'rake/contrib/sshpublisher'
 require 'jeweler'
 Jeweler::Tasks.new do |s|
   s.name = 'enumerated_attribute'
-  s.description = 'Enumerated model attributes and view helpers'
-  s.summary = 'Add enumerated attributes to your models and expose them in drop-down lists in your views'
+  s.summary = 'Enumerated model attributes and view helpers'
+  s.description = 'Add enumerated attributes to your models and expose them in drop-down lists in your views'
 
   s.add_dependency('meta_programming', '>= 0.2.1')
   
