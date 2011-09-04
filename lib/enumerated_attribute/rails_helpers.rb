@@ -36,7 +36,6 @@ end
 #ARGV is used by generators -- if it contains one of these generator commands - add enumeration support
 #unless ((ARGV || []) & ["scaffold", "rspec_scaffold", "nifty_scaffold"]).empty?
 if ((ARGV || []).any?{|o| o =~ /scaffold/ })
-	require 'rails_generator' rescue nil
   begin
     require 'rails/generators'
     require 'rails/generators/generated_attribute'
@@ -45,7 +44,7 @@ if ((ARGV || []).any?{|o| o =~ /scaffold/ })
   end
 
 	module Rails
-		module Generator
+		module Generators
 			class GeneratedAttribute
 				def field_type_with_enumerated_attribute
 					return (@field_type = :enum_select) if type == :enum
