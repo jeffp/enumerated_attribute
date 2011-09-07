@@ -157,10 +157,15 @@ describe "RaceCar" do
 		s.lights.should == 'off'
 	end	
 
-	it "should raise InvalidEnumeration when parametrically initialized with :gear=>:drive" do
+	it "should not raise InvalidEnumeration when parametrically initialized with :gear=>:drive" do
 		r=RaceCar.new
-		lambda{ r.gear= :drive}.should raise_error(EnumeratedAttribute::InvalidEnumeration)
+		lambda{ r.gear= :drive}.should_not raise_error(EnumeratedAttribute::InvalidEnumeration)
 	end
+
+	it "should raise RecordInvalid on create! when parametrically initialized with :gear=>:drive" do
+		lambda{ RaceCare.create!(:gear => :drive)}.should raise_error(EnumeratedAttribute::InvalidEnumeration)
+	end
+
 	
 	it "should raise InvalidEnumeration when parametrically initialized with :choke=>:all" do
 		r=RaceCar.new
