@@ -1,4 +1,4 @@
-require 'test_in_memory'
+require 'active_record/test_in_memory'
 require 'enumerated_attribute'
 require 'active_record'
 require 'active_record/sti_classes'

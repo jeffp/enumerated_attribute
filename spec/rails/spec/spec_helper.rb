@@ -18,11 +18,11 @@ Webrat.configure do |config|
 	config.mode = :rails
 end
 	
-Spec::Runner.configure do |config|
+RSpec::Runner.configure do |config|
 end
 
 #setup for integrating webrat with rspec
-module Spec::Rails::Example
+module RSpec::Rails::Example
   class IntegrationExampleGroup < ActionController::IntegrationTest
     
     def initialize(defined_description, options={}, &implementation)
@@ -34,7 +34,7 @@ module Spec::Rails::Example
       super(defined_description)
     end
     
-    Spec::Example::ExampleGroupFactory.register(:integration, self)
+    RSpec::Example::ExampleGroupFactory.register(:integration, self)
   end
 end
 

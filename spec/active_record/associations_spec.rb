@@ -1,7 +1,7 @@
-require 'test_in_memory'
+require 'active_record/test_in_memory'
 require 'enumerated_attribute'
 require 'active_record'
-require 'association_test_classes'
+require 'active_record/association_test_classes'
 
 module TestVariables
 	def company_name; 'Company A'; end

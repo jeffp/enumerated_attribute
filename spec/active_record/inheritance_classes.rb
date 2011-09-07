@@ -1,4 +1,4 @@
-require 'race_car'
+require 'active_record/race_car'
 
 class SubRaceCar < RaceCar
 	set_table_name "race_cars"

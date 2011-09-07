@@ -1,7 +1,7 @@
-require 'test_in_memory'
+require 'active_record/test_in_memory'
 require 'active_record'
 require 'enumerated_attribute'
-require 'race_car'
+require 'active_record/race_car'
 
 describe "RaceCar" do
 

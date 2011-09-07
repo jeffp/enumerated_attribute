@@ -2,7 +2,7 @@ require 'rubygems'
 require 'tractor'
 require 'plural'
 
-Spec::Matchers.define :define_instance_method do |method_name|
+RSpec::Matchers.define :define_instance_method do |method_name|
   match do |klass_or_object|
     if klass_or_object.is_a?(Class)
       klass_or_object.method_defined?(method_name.to_sym)

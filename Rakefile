@@ -21,18 +21,19 @@ Jeweler::Tasks.new do |s|
   s.author = ['Jeff Patmon', 'Turadg Aleahmad']
   s.email = ['jpatmon@gmail.com', "turadg@aleahmad.net"]
   s.homepage = 'http://github.com/jeffp/enumerated_attribute/'
+  
+  s
 end
 
 Jeweler::GemcutterTasks.new  
 
 
-# require 'spec/version'
 require "rspec/core/rake_task" # RSpec 2.0
 
 desc "Run specs"
 
 namespace :spec do
-  task :default=>:all
+  task :default => :all
   RSpec::Core::RakeTask.new(:object) do |t|
     t.pattern = 'spec/*_spec.rb'
     # t.libs << 'lib' << 'spec'
@@ -41,20 +42,6 @@ namespace :spec do
     #t.rcov_dir = 'coverage'
     #t.rcov_opts = ['--exclude', "kernel,load-diff-lcs\.rb,instance_exec\.rb,lib/spec.rb,lib/spec/runner.rb,^spec/*,bin/spec,examples,/gems,/Library/Ruby,\.autotest,#{ENV['GEM_HOME']}"]
   end
-=begin
-  RSpec::Core::RakeTask.new(:sub) do |t|
-    t.spec_files = FileList['spec/inheritance_spec.rb']
-    t.libs << 'lib' << 'spec'
-    t.rcov = false
-    t.rspec_opts = ['--options', 'spec/spec.opts']
-  end
-  RSpec::Core::RakeTask.new(:poro) do |t|
-    t.spec_files = FileList['spec/poro_spec.rb']
-    t.libs << 'lib' << 'spec'
-    t.rcov = false
-    t.rspec_opts = ['--options', 'spec/spec.opts']
-  end
-=end  
   desc "Run ActiveRecord integration specs"
   RSpec::Core::RakeTask.new(:ar) do |t|
     t.pattern = 'spec/active_record/*_spec.rb'
@@ -68,17 +55,12 @@ namespace :spec do
     t.rspec_opts = ['--options', 'spec/spec.opts']    
     t.rcov = false
   end
-# RSpec::Core::RakeTask.new(:associations) do |t|
-#   t.spec_files = FileList['spec/active_record/associations_spec.rb']
-#   t.libs << 'lib' << 'spec/active_record'
-#   t.rcov = false
-# end
   desc "Run all specs"
   task :all=>[:object, :ar, :forms] 
 end
 
 
-# desc "Generate documentation for the #{spec.name} plugin."
+desc "Generate documentation for the 'enumerated_attribute' plugin."
 Rake::RDocTask.new(:rdoc) do |rdoc|
   rdoc.rdoc_dir = 'rdoc'
   # rdoc.title = spec.name
