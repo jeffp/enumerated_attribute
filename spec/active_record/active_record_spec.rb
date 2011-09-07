@@ -157,20 +157,27 @@ describe "RaceCar" do
 		s.lights.should == 'off'
 	end	
 
-	it "should not raise InvalidEnumeration when parametrically initialized with :gear=>:drive" do
+	it "should not raise InvalidEnumeration when parametrically initialized with invalid column attribute value" do
 		r=RaceCar.new
 		lambda{ r.gear= :drive}.should_not raise_error(EnumeratedAttribute::InvalidEnumeration)
 	end
 
-	it "should raise RecordInvalid on create! when parametrically initialized with :gear=>:drive" do
-		lambda{ RaceCare.create!(:gear => :drive)}.should raise_error(EnumeratedAttribute::InvalidEnumeration)
+	it "should raise RecordInvalid on create! when parametrically initialized with invalid column attribute value" do
+		lambda{ RaceCar.create!(:gear => :drive)}.should raise_error(ActiveRecord::RecordInvalid)
 	end
 
 	
-	it "should raise InvalidEnumeration when parametrically initialized with :choke=>:all" do
+	it "should not raise InvalidEnumeration when parametrically initialized with invalid non-column attribute" do
 		r=RaceCar.new
-		lambda{ r.choke= :all}.should raise_error(EnumeratedAttribute::InvalidEnumeration)
+		lambda{ r.choke= :all}.should_not raise_error(EnumeratedAttribute::InvalidEnumeration)
 	end
+
+	it "should not be valid on non-column attribute with parametrically initialized bad value" do
+		r=RaceCar.new
+		r.choke= :all
+		r.should_not be_valid
+	end
+
 	
 	it "should return non-column enumerated attributes from [] method" do
 		r = RaceCar.new
@@ -195,9 +202,15 @@ describe "RaceCar" do
 		r.gear.should == :second
 	end
 	
-	it "should raise InvalidEnumeration when setting enumerated column attribute with []= method" do
+	it "should not raise InvalidEnumeration when setting enumerated column attribute with []= method" do
 		r=RaceCar.new
-		lambda{ r[:gear]= :drive }.should raise_error(EnumeratedAttribute::InvalidEnumeration)
+		lambda{ r[:gear]= :drive }.should_not raise_error(EnumeratedAttribute::InvalidEnumeration)
+	end
+	
+	it "should raise RecordInvalid on save! after setting enumerated column attribute with []= method" do
+		r=RaceCar.new
+		r[:gear]= :drive
+		lambda{ r.save! }.should raise_error(ActiveRecord::RecordInvalid)
 	end
 	
 	it "should set and retrieve string for non-enumerated column attributes with []=" do
@@ -214,9 +227,15 @@ describe "RaceCar" do
 		r[:lights].should == :on
 	end
 
-	it "should raise InvalidEnumeration for invalid enum passed to attributes=" do
+	it "should not raise InvalidEnumeration for invalid enum passed to attributes=" do
 		r=RaceCar.new
-		lambda { r.attributes = {:lights=>'off', :gear =>:drive} }.should raise_error(EnumeratedAttribute::InvalidEnumeration)
+		lambda { r.attributes = {:lights=>'off', :gear =>:drive} }.should_not raise_error(EnumeratedAttribute::InvalidEnumeration)
+	end
+
+	it "should raise RecordInvalid on save! for invalid enum passed to attributes=" do
+		r=RaceCar.new
+		r.attributes = {:lights=>'off', :gear =>:drive}
+		lambda { r.save! }.should raise_error(ActiveRecord::RecordInvalid)
 	end
 
 =begin
@@ -310,9 +329,15 @@ describe "RaceCar" do
 		s.attributes['lights'].should == 'on'
 	end
 	
-	it "should raise InvalidEnumeration when setting invalid enumertion value with :attributes= method" do
+	it "should not raise InvalidEnumeration when setting invalid enumeration value with :attributes= method" do
 		r=RaceCar.new
-		lambda { r.attributes = {:gear=>:yo, :lights=>'on'} }.should raise_error(EnumeratedAttribute::InvalidEnumeration)
+		lambda { r.attributes = {:gear=>:yo, :lights=>'on'} }.should_not raise_error(EnumeratedAttribute::InvalidEnumeration)
+	end
+
+	it "should raise RecordInvalid on save! after setting invalid enumeration value with :attributes= method" do
+		r=RaceCar.new
+		r.attributes = {:gear=>:yo, :lights=>'on'}
+		lambda { r.save! }.should raise_error(ActiveRecord::RecordInvalid)
 	end
 	
 	it "should not set init value for enumerated column attribute saved as nil" do
