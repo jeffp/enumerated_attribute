@@ -18,7 +18,7 @@ module EnumeratedAttribute
 					end
 				end
 			end
-			
+
 			def write_enumerated_attribute(name, val)
 				name = name.to_s
 				return write_attribute(name, val) unless self.class.has_enumerated_attribute?(name)
@@ -29,7 +29,7 @@ module EnumeratedAttribute
 				write_attribute(name, val_str)
 				val_sym
 			end
-			
+
 			def read_enumerated_attribute(name)
 				name = name.to_s
 				#if not enumerated - let active record handle it
@@ -42,17 +42,21 @@ module EnumeratedAttribute
 				val = val.to_sym if !!val
 				val
 			end
-			
+
 			def attributes=(attrs, guard_protected_attributes=true)
 				return if attrs.nil?
-				#check the attributes then turn them over 
+				#check the attributes then turn them over
 				attrs.each do |k, v|
 					attrs[k] = v.to_s if self.class.has_enumerated_attribute?(k)
 				end
-				
-				super
+
+				if guard_protected_attributes
+                                  super(attrs) #prevents deprecation warnings for rails 3.1.1
+                                else
+                                  super(attrs, guard_protected_attributes)
+                                end
 			end
-			
+
 			def attributes
 				atts = super
 				atts.each do |k,v|
@@ -62,23 +66,23 @@ module EnumeratedAttribute
 				end
 				atts
 			end
-			
+
       def [](attr_name); read_enumerated_attribute(attr_name); end
       def []=(attr_name, value); write_enumerated_attribute(attr_name, value); end
-			
+
 			private
-						
+
 			def attribute=(attr_name, value); write_enumerated_attribute(attr_name, value); end
-									
+
 			module ClassMethods
 				private
-				
+
 				def construct_attributes_from_arguments(attribute_names, arguments)
           attributes = {}
           attribute_names.each_with_index{|name, idx| attributes[name] = has_enumerated_attribute?(name) ? arguments[idx].to_s : arguments[idx]}
           attributes
 				end
-				
+
 				def instantiate(record)
 					object = super(record)
 					self.enumerated_attributes.each do |k,v|
@@ -88,7 +92,7 @@ module EnumeratedAttribute
 					end
 					object
 				end
-				
+
 				def define_enumerated_attribute_new_method
 					class_eval do
 						class << self
@@ -113,6 +117,6 @@ module EnumeratedAttribute
           end
 				end
 			end
-		end	
+		end
 	end
 end
