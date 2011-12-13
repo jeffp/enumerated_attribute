@@ -557,9 +557,9 @@ ActiveRecord's write_attribute and read_attribute methods do not support symbols
 
 == Testing
 
-The plugin uses RSpec and Webrat for testing.  Make sure you have the RSpec gem installed:
+The plugin uses jeweler, RSpec, and Webrat for testing.  Make sure you have these gems installed:
 
-  gem install rspec webrat
+  gem install rspec webrat jeweler
   
 To test the plugin for regular ruby objects, run:
 
