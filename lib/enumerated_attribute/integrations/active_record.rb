@@ -75,14 +75,6 @@ module EnumeratedAttribute
 			def attribute=(attr_name, value); write_enumerated_attribute(attr_name, value); end
 
 			module ClassMethods
-				private
-
-				def construct_attributes_from_arguments(attribute_names, arguments)
-          attributes = {}
-          attribute_names.each_with_index{|name, idx| attributes[name] = has_enumerated_attribute?(name) ? arguments[idx].to_s : arguments[idx]}
-          attributes
-				end
-
 				def instantiate(record)
 					object = super(record)
 					self.enumerated_attributes.each do |k,v|
@@ -91,6 +83,14 @@ module EnumeratedAttribute
 						end
 					end
 					object
+				end
+
+				private
+
+				def construct_attributes_from_arguments(attribute_names, arguments)
+          attributes = {}
+          attribute_names.each_with_index{|name, idx| attributes[name] = has_enumerated_attribute?(name) ? arguments[idx].to_s : arguments[idx]}
+          attributes
 				end
 
 				def define_enumerated_attribute_new_method
