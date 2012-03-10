@@ -43,18 +43,14 @@ module EnumeratedAttribute
 				val
 			end
 
-			def attributes=(attrs, guard_protected_attributes=true)
+			def attributes=(attrs)
 				return if attrs.nil?
 				#check the attributes then turn them over
 				attrs.each do |k, v|
 					attrs[k] = v.to_s if self.class.has_enumerated_attribute?(k)
 				end
 
-				if guard_protected_attributes
-                                  super(attrs) #prevents deprecation warnings for rails 3.1.1
-                                else
-                                  super(attrs, guard_protected_attributes)
-                                end
+				super
 			end
 
 			def attributes
